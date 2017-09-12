@@ -5,10 +5,10 @@
 
 #include <string>
 
-#include <GLFW\glfw3.h>
+//#include <GLFW\glfw3.h>
 
 namespace Util {
-	void initWindowAndContext(GLFWwindow*& window, const std::string& windowTitle);
+	//void initWindowAndContext(GLFWwindow*& window, const std::string& windowTitle);
 }
 
 #endif // UTIL_H
