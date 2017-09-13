@@ -19,13 +19,17 @@ public:
 
 	virtual void draw(NVGcontext* ctx) override
 	{
-		nvgStrokeWidth(ctx, 5.0f);
 		nvgBeginPath(ctx);
 		nvgRect(ctx, mPos.x() - 0.5f, mPos.y() - 0.5f, mSize.x() + 1, mSize.y() + 1);
-		if (m_toggle) nvgFillColor(ctx, nvgRGBA(255, 0, 0, 255));
-		nvgStrokeColor(ctx, nvgRGBA(255, 0, 0, 255));
-		if (m_toggle) nvgFill(ctx);
-		nvgStroke(ctx);
+		if (m_toggle) {
+			nvgFillColor(ctx, nvgRGBA(255, 0, 0, 255));
+			nvgFill(ctx);
+		} else {
+			nvgStrokeWidth(ctx, 5.0f);
+			nvgStrokeColor(ctx, nvgRGBA(255, 0, 0, 255));
+			nvgStroke(ctx);
+		}
+
 		Widget::draw(ctx);
 	}
 
@@ -44,7 +48,7 @@ public:
 		Widget::mouseEnterEvent(p, enter);
 
 		if (enter && glfwGetMouseButton(this->screen()->glfwWindow(), GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
-			m_toggle = !m_toggle;
+			m_toggle = true;
 			return true;
 		}
 	}
@@ -57,7 +61,7 @@ class AStarApp : public Screen {
 public:
 	AStarApp() : 
 		m_modulation{ 5 },
-		Screen(Vector2i(1024, 768), "NanoGUI Test")
+		Screen(Vector2i(1024, 850), "NanoGUI Test")
 	{
 		/**
 		* Add a window.
@@ -74,10 +78,15 @@ public:
 		slider->setValue(0.5f);
 		slider->setCallback([this](float value) { m_modulation = value * 10.0f; });
 
-		auto cell = new Cell(window);
-		cell->setFixedSize({ 50, 50 });
-		auto cell2 = new Cell(window);
-		cell2->setFixedSize({ 50, 50 });
+		Window* window2 = new Window(this, "");
+		window2->setPosition({ 100, 15 });
+		int gridSize = 16;
+		window2->setLayout(new GridLayout(Orientation::Horizontal, gridSize));
+
+		for (int i = 0; i < gridSize * gridSize; ++i) {
+			auto cell = new Cell(window2);
+			cell->setFixedSize({ 50, 50 });
+		}
 
 		// Do the layout calculations based on what was added to the GUI
 		performLayout();
