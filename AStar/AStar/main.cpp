@@ -9,14 +9,56 @@
 #include <nanogui/formhelper.h>
 #include <nanogui/slider.h>
 
-class AStarApp : public nanogui::Screen {
+using namespace nanogui;
+
+class Cell : public Widget {
+public:
+	Cell(Window* window) :
+		Widget(window),
+		m_toggle{ false } { }
+
+	virtual void draw(NVGcontext* ctx) override
+	{
+		nvgStrokeWidth(ctx, 5.0f);
+		nvgBeginPath(ctx);
+		nvgRect(ctx, mPos.x() - 0.5f, mPos.y() - 0.5f, mSize.x() + 1, mSize.y() + 1);
+		if (m_toggle) nvgFillColor(ctx, nvgRGBA(255, 0, 0, 255));
+		nvgStrokeColor(ctx, nvgRGBA(255, 0, 0, 255));
+		if (m_toggle) nvgFill(ctx);
+		nvgStroke(ctx);
+		Widget::draw(ctx);
+	}
+
+	virtual bool mouseButtonEvent(const Vector2i& p, int button, bool down, int modifiers) override
+	{
+		if (button == GLFW_MOUSE_BUTTON_1 && down) {
+			m_toggle = !m_toggle;
+			return true;
+		}
+
+		return Widget::mouseButtonEvent(p, button, down, modifiers);
+	}
+
+	virtual bool mouseEnterEvent(const Vector2i& p, bool enter) override 
+	{
+		Widget::mouseEnterEvent(p, enter);
+
+		if (enter && glfwGetMouseButton(this->screen()->glfwWindow(), GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
+			m_toggle = !m_toggle;
+			return true;
+		}
+	}
+
+private:
+	bool m_toggle;
+};
+
+class AStarApp : public Screen {
 public:
 	AStarApp() : 
 		m_modulation{ 5 },
-		nanogui::Screen(nanogui::Vector2i(1024, 768), "NanoGUI Test")
+		Screen(Vector2i(1024, 768), "NanoGUI Test")
 	{
-		using namespace nanogui;
-
 		/**
 		* Add a window.
 		* To the window add a label and a slider widget.
@@ -26,11 +68,16 @@ public:
 		window->setPosition({ 15, 15 });
 		window->setLayout(new GroupLayout(5, 5, 0, 0));
 
-		Label *l = new Label(window, "MODULATION", "sans-bold");
+		Label* l = new Label(window, "MODULATION", "sans-bold");
 		l->setFontSize(10);
 		auto slider = new Slider(window);
 		slider->setValue(0.5f);
 		slider->setCallback([this](float value) { m_modulation = value * 10.0f; });
+
+		auto cell = new Cell(window);
+		cell->setFixedSize({ 50, 50 });
+		auto cell2 = new Cell(window);
+		cell2->setFixedSize({ 50, 50 });
 
 		// Do the layout calculations based on what was added to the GUI
 		performLayout();
@@ -91,7 +138,7 @@ public:
 	}
 
 private:
-	nanogui::GLShader m_shader;
+	GLShader m_shader;
 	float m_modulation;
 };
 

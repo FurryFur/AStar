@@ -89,7 +89,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NANOGUI_SHARED;NVG_SHARED;GLAD_GLAPI_EXPORT;NANOGUI_GLAD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NANOGUI_SHARED;NVG_SHARED;GLAD_GLAPI_EXPORT;NANOGUI_GLAD;NANOGUI_SHOW_WIDGET_BOUNDS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>opengl32.lib;nanogui.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -103,7 +103,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NANOGUI_SHARED;NVG_SHARED;GLAD_GLAPI_EXPORT;NANOGUI_GLAD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;NANOGUI_SHARED;NVG_SHARED;GLAD_GLAPI_EXPORT;NANOGUI_GLAD;NANOGUI_SHOW_WIDGET_BOUNDS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>opengl32.lib;nanogui.lib;%(AdditionalDependencies)</AdditionalDependencies>
