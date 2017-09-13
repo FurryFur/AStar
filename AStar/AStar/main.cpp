@@ -136,12 +136,12 @@ public:
 	// Draw nanonvg (vector graphics) stuff
 	virtual void draw(NVGcontext* ctx)
 	{
-		nvgBeginPath(ctx);
-		nvgRect(ctx, 100, 100, 120, 30);
-		nvgCircle(ctx, 120, 120, 5);
-		nvgPathWinding(ctx, NVG_HOLE);	// Mark circle as a hole.
-		nvgFillColor(ctx, nvgRGBA(255, 192, 0, 255));
-		nvgFill(ctx);
+		//nvgBeginPath(ctx);
+		//nvgRect(ctx, 100, 100, 120, 30);
+		//nvgCircle(ctx, 120, 120, 5);
+		//nvgPathWinding(ctx, NVG_HOLE);	// Mark circle as a hole.
+		//nvgFillColor(ctx, nvgRGBA(255, 192, 0, 255));
+		//nvgFill(ctx);
 
 		Screen::draw(ctx);
 	}
