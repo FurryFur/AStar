@@ -36,7 +36,10 @@ public:
 	virtual bool mouseButtonEvent(const Vector2i& p, int button, bool down, int modifiers) override
 	{
 		if (button == GLFW_MOUSE_BUTTON_1 && down) {
-			m_toggle = !m_toggle;
+			m_toggle = true;
+			return true;
+		} else if (button == GLFW_MOUSE_BUTTON_2 && down) {
+			m_toggle = false;
 			return true;
 		}
 
@@ -49,6 +52,9 @@ public:
 
 		if (enter && glfwGetMouseButton(this->screen()->glfwWindow(), GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
 			m_toggle = true;
+			return true;
+		} else if (enter && glfwGetMouseButton(this->screen()->glfwWindow(), GLFW_MOUSE_BUTTON_2) == GLFW_PRESS) {
+			m_toggle = false;
 			return true;
 		}
 	}
