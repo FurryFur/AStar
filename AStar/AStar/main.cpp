@@ -61,7 +61,7 @@ class AStarApp : public Screen {
 public:
 	AStarApp() : 
 		m_modulation{ 5 },
-		Screen(Vector2i(1024, 850), "NanoGUI Test")
+		Screen(Vector2i(1024, 850), "AStar")
 	{
 		/**
 		* Add a window.
