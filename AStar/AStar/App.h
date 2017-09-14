@@ -2,11 +2,9 @@
 
 #include <nanogui\nanogui.h>
 
-#include "Cell.h"
+#include "Grid.h"
 
-using namespace nanogui;
-
-class AStarApp : public Screen {
+class AStarApp : public nanogui::Screen {
 public:
 	// Setup UI and Shader
 	AStarApp();
@@ -18,6 +16,7 @@ public:
 	virtual void draw(NVGcontext* ctx) override;
 
 private:
-	GLShader m_shader;
+	nanogui:: GLShader m_shader;
 	float m_modulation;
+	Grid m_grid;
 };

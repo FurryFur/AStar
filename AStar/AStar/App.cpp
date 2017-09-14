@@ -1,4 +1,8 @@
 #include "App.h"
+#include "Utils.h"
+#include "Node.h"
+
+using namespace nanogui;
 
 AStarApp::AStarApp() :
 	m_modulation{ 5 },
@@ -21,13 +25,40 @@ AStarApp::AStarApp() :
 
 	Window* window2 = new Window(this, "");
 	window2->setPosition({ 100, 15 });
-	int gridSize = 16;
-	window2->setLayout(new GridLayout(Orientation::Horizontal, gridSize));
+	window2->setLayout(new GridLayout(Orientation::Horizontal, Node::s_kGridSize));
 
-	for (int i = 0; i < gridSize * gridSize; ++i) {
-		auto cell = new Cell(window2);
-		cell->setFixedSize({ 50, 50 });
+	// Create pathing nodes
+	for (size_t i = 0; i < Node::s_kGridSize; ++i) {
+		for (size_t j = 0; j < Node::s_kGridSize; ++j) {
+			auto node = new Node(window2, i, j, m_grid);
+			node->setFixedSize({ 50, 50 });
+		}
 	}
+	
+	// Add connections to nodes
+	for (size_t r = 0; r < Node::s_kGridSize; ++r) {
+		for (size_t c = 0; c < Node::s_kGridSize; ++c) {
+			for (int relR = -1; relR <= 1; ++relR) {
+				for (int relC = -1; relC <= 1; ++relC) {
+					if (relR == 0 && relC == 0)
+						continue;
+
+					size_t connRow = r + relR;
+					size_t connCol = c + relC;
+
+					if (isIn2DBounds(connRow, connCol, Node::s_kGridSize))
+						m_grid.getGridNode(r, c)->addConnection(m_grid.getGridNode(connRow, connCol));
+				}
+			}
+		}
+	}
+
+	Window* window3 = new Window(this, "");
+	window3->setPosition({ 450, 700 });
+	window3->setLayout(new GroupLayout());
+	auto button = new Button(window3, "SIMULATE");
+	button->setBackgroundColor(Color(255, 0, 0, 1));
+	button->setFixedSize({ 500, 100 });
 
 	// Do the layout calculations based on what was added to the GUI
 	performLayout();
