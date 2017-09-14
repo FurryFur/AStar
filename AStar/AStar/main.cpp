@@ -20,7 +20,7 @@ public:
 	virtual void draw(NVGcontext* ctx) override
 	{
 		nvgBeginPath(ctx);
-		nvgRect(ctx, mPos.x() - 0.5f, mPos.y() - 0.5f, mSize.x() + 1, mSize.y() + 1);
+		nvgRect(ctx, static_cast<float>(mPos.x()), static_cast<float>(mPos.y()), static_cast<float>(mSize.x()), static_cast<float>(mSize.y()));
 		if (m_toggle) {
 			nvgFillColor(ctx, nvgRGBA(255, 0, 0, 255));
 			nvgFill(ctx);
@@ -57,6 +57,8 @@ public:
 			m_toggle = false;
 			return true;
 		}
+
+		return false;
 	}
 
 private:
@@ -125,7 +127,7 @@ public:
 		int fboWidth, fboHeight;
 		glfwGetFramebufferSize(mGLFWWindow, &fboWidth, &fboHeight);
 		m_shader.setUniform("resolution", Vector2f{ fboWidth, fboHeight });
-		float mx = std::max<float>(fboWidth, fboHeight);
+		float mx = std::max<float>(static_cast<float>(fboWidth), static_cast<float>(fboHeight));
 		auto xDim = fboWidth / mx;
 		auto yDim = fboHeight / mx;
 		m_shader.setUniform("screenRatio", Vector2f{ xDim, yDim });
