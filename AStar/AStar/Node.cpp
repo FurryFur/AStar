@@ -8,6 +8,8 @@ using namespace nanogui;
 Node::Node(Window * window, size_t row, size_t col, Grid& grid) :
 	Widget(window),
 	m_grid{ grid },
+	m_row{ row },
+	m_col{ col },
 	m_obstructed{ false } 
 {
 	grid.setGridNode(row, col, this);
@@ -22,8 +24,7 @@ void Node::draw(NVGcontext * ctx)
 	if (m_obstructed) {
 		nvgFillColor(ctx, nvgRGBA(255, 0, 0, 255));
 		nvgFill(ctx);
-	}
-	else {
+	} else {
 		nvgStrokeWidth(ctx, 5.0f);
 		nvgStrokeColor(ctx, nvgRGBA(255, 0, 0, 255));
 		nvgStroke(ctx);
@@ -56,7 +57,7 @@ bool Node::mouseButtonEvent(const Vector2i & p, int button, bool down, int modif
 		obstructionEvent(true);
 		return true;
 	}
-	else if (button == GLFW_MOUSE_BUTTON_2 && down) {
+	if (button == GLFW_MOUSE_BUTTON_2 && down) {
 		obstructionEvent(false);
 		return true;
 	}
@@ -72,7 +73,7 @@ bool Node::mouseEnterEvent(const Vector2i & p, bool enter)
 		obstructionEvent(true);
 		return true;
 	}
-	else if (enter && glfwGetMouseButton(this->screen()->glfwWindow(), GLFW_MOUSE_BUTTON_2) == GLFW_PRESS) {
+	if (enter && glfwGetMouseButton(this->screen()->glfwWindow(), GLFW_MOUSE_BUTTON_2) == GLFW_PRESS) {
 		obstructionEvent(false);
 		return true;
 	}
@@ -88,46 +89,64 @@ void Node::addConnection(ref<Node> node)
 	}
 }
 
-std::list<ref<Node>>::iterator Node::removeConnection(ref<Node> node)
+bool Node::removeConnection(nanogui::ref<Node> node)
 {
-	// Remove connection to node
-	for (auto it = node->m_connections.begin(); it != node->m_connections.end(); ++it) {
-		if (*it == ref<Node>(this)) {
-			node->m_connections.erase(it);
-			break;
-		}
-	}
+	if (!node)
+		return false;
 
-	// Remove connection from node
+	// Find and remove connection
 	auto it = m_connections.begin();
 	while (it != m_connections.end()) {
 		if (*it == node) {
-			it = m_connections.erase(it);
-			break;
+			if (removeConnection(it) != m_connections.end())
+				return true;
+			else
+				return false;
 		} else {
 			++it;
 		}
 	}
 
-	return it;
+	return false;
+}
+
+bool Node::removeConnection(nanogui::ref<Node> node1, nanogui::ref<Node> node2)
+{
+	if (!node1 || !node2)
+		return false;
+
+	return node1->removeConnection(node2);
+}
+
+std::list<ref<Node>>::iterator Node::removeConnection(std::list<nanogui::ref<Node>>::iterator nodeIt)
+{
+	// Remove connection from specified node to this node
+	for (auto it = (*nodeIt)->m_connections.begin(); it != (*nodeIt)->m_connections.end(); ++it) {
+		if (*it == ref<Node>(this)) {
+			(*nodeIt)->m_connections.erase(it);
+			break;
+		}
+	}
+
+	// Remove connection from this node to specified node
+	return m_connections.erase(nodeIt);
 }
 
 void Node::obstructionEvent(bool obstructed)
 {
 	m_obstructed = obstructed;
 
-	
-
-
-	
 	if (obstructed) {
-		// TODO: Remove neighboring nodes diagonal connections around this node
-		
+		// Remove neighboring nodes diagonal connections around this node
+		removeConnection(m_grid[m_row - 1][m_col], m_grid[m_row][m_col - 1]);
+		removeConnection(m_grid[m_row][m_col - 1], m_grid[m_row + 1][m_col]);
+		removeConnection(m_grid[m_row + 1][m_col], m_grid[m_row][m_col + 1]);
+		removeConnection(m_grid[m_row][m_col + 1], m_grid[m_row - 1][m_col]);
 
 		// Remove connections with this node
 		auto it = m_connections.begin();
 		while (it != m_connections.end()) {
-			it = removeConnection(*it);
+			it = removeConnection(it);
 		}
 	}
 }
