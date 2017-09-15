@@ -15,26 +15,29 @@ public:
 	Grid();
 	~Grid();
 	
-	// Set the node at the specified grid position
+	// Sets the node at the specified grid position.
 	void setGridNode(size_t row, size_t col, nanogui::ref<Node> node);
 
-	// Get the node at the specified grid position
+	// Gets the node at the specified grid position.
 	nanogui::ref<Node> getGridNode(size_t row, size_t col) const;
 
-	// Weird proxy for safe 2D index operator
+	// Weird proxy for safe 2D index operations.
+	// Stores a pointer to a grid row that can then be indexed by column.
 	class IndexProxy {
 	public:
 		IndexProxy(const std::array<nanogui::ref<Node>, s_kGridSize>* _array);
 
-		// Access the node in the 2D grid through an index proxy
-		// Returns a null reference on invalid index
+		// Accesses a node in the 2D grid through an index proxy.
+		// Returns a null reference on invalid index.
 		nanogui::ref<Node> operator[](size_t col) const;
 	private:
 		const std::array<nanogui::ref<Node>, s_kGridSize>* m_array;
 	};
 
-	// Access the node in the 2D grid through an index proxy
-	// Returns an index proxy to null references on invalid index
+	// Accesses a node in the 2D grid through an index proxy.
+	// Returns an index proxy pointing to the specified row in the grid.
+	// If an invalid row is supplied, a dummy index proxy is returned that 
+	// always returns a null reference when indexed into.
 	const IndexProxy operator[](size_t row) const;
 
 private:

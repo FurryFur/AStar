@@ -81,12 +81,27 @@ bool Node::mouseEnterEvent(const Vector2i & p, bool enter)
 	return false;
 }
 
-void Node::addConnection(ref<Node> node)
+bool Node::connect(ref<Node> node)
 {
+	if (!node)
+		return false;
+
+	// Add connection to node if one doesn't already exist
 	if (std::find(m_connections.begin(), m_connections.end(), node) == m_connections.end()) {
-		node->m_connections.push_back(this);
-		m_connections.push_back(std::move(node));
+		node->m_connections.push_back(this); // From that to this
+		m_connections.push_back(std::move(node)); // From this to that
+		return true;
 	}
+
+	return false;
+}
+
+bool Node::connect(nanogui::ref<Node> node1, nanogui::ref<Node> node2)
+{
+	if (!node1 || !node2)
+		return false;
+
+	return node1->connect(node2);
 }
 
 bool Node::removeConnection(nanogui::ref<Node> node)

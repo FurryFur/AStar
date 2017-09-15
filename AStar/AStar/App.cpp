@@ -1,5 +1,4 @@
 #include "App.h"
-#include "Utils.h"
 #include "Node.h"
 
 using namespace nanogui;
@@ -46,8 +45,7 @@ AStarApp::AStarApp() :
 					size_t connRow = r + relR;
 					size_t connCol = c + relC;
 
-					if (isIn2DBounds(connRow, connCol, Node::s_kGridSize))
-						m_grid.getGridNode(r, c)->addConnection(m_grid.getGridNode(connRow, connCol));
+					Node::connect(m_grid[r][c], m_grid[connRow][connCol]);
 				}
 			}
 		}

@@ -5,39 +5,44 @@
 
 #include <nanogui/nanogui.h>
 
-#include "Utils.h"
-
 class Grid;
 
 class Node : public nanogui::Widget {
 public:
 	Node(nanogui::Window* window, size_t row, size_t col, Grid& grid);
 
-	// Draw the cell
+	// Draws the cell.
 	virtual void draw(NVGcontext* ctx) override;
 
-	// Handle clicking on the cell
+	// Handles clicking on the cell.
 	virtual bool mouseButtonEvent(const nanogui::Vector2i& p, int button, bool down, int modifiers) override;
 
-	// Handle entering the cell with a mouse button down
+	// Handles entering the cell with a mouse button down.
 	virtual bool mouseEnterEvent(const nanogui::Vector2i& p, bool enter) override;
 
-	// Add pathing connection to the specified node
-	void addConnection(nanogui::ref<Node> node);
+	// Adds a pathing connection to the specified node.
+	// Returns true if a new connection was made.
+	// Returns false if the connection already exists or the specified node is null.
+	bool connect(nanogui::ref<Node> node);
+
+	// Adds a pathing connection between the specified nodes.
+	// Returns true if a new connection was made.
+	// Returns false if the connection already exists or either of the specified nodes are null.
+	static bool connect(nanogui::ref<Node> node1, nanogui::ref<Node> node2);
 
 	static const size_t s_kGridSize = 16;
 private:
 
-	// Remove pathing connection to specified node.
+	// Removes the pathing connection to the specified node.
 	// Returns false if no connection was found or specified node was null.
 	bool removeConnection(nanogui::ref<Node> node);
 
-	// Remove pathing connection between specified nodes.
-	// Returns false if no connection was found or either of the specified nodes were null.
+	// Removes the pathing connection between specified nodes.
+	// Returns false if no connection was found or either of the specified nodes are null.
 	static bool removeConnection(nanogui::ref<Node> node1, nanogui::ref<Node> node2);
 
-	// Remove pathing connection to specified node via iterator
-	// Returns an iterator pointing to the connection following the one that was removed
+	// Removes the pathing connection to specified node via an iterator.
+	// Returns an iterator pointing to the connection following the one that was removed.
 	std::list<nanogui::ref<Node>>::iterator removeConnection(std::list<nanogui::ref<Node>>::iterator nodeIt);
 
 	void obstructionEvent(bool obstructed);
