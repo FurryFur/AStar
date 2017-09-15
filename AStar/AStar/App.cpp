@@ -1,5 +1,6 @@
 #include "App.h"
 #include "Node.h"
+#include "CustomButton.h"
 
 using namespace nanogui;
 
@@ -66,18 +67,18 @@ AStarApp::AStarApp()
 	toolsWindow->setLayout(new GroupLayout());
 
 	// Setup brush pallet
-	auto placeStartTool = new Button(toolsWindow, "Start");
+	auto placeStartTool = new CustomButton(toolsWindow, "Start");
 	placeStartTool->setPushed(true);
 	placeStartTool->setFlags(Button::RadioButton);
 	placeStartTool->setCallback([this]() {
 		m_navPainter.setCurrentBrush(NavPainter::BrushType::Start);
 	});
-	auto placeEndTool = new Button(toolsWindow, "End");
+	auto placeEndTool = new CustomButton(toolsWindow, "End");
 	placeEndTool->setFlags(Button::RadioButton);
 	placeEndTool->setCallback([this]() {
 		m_navPainter.setCurrentBrush(NavPainter::BrushType::End);
 	});
-	auto placeObstruction = new Button(toolsWindow, "Obstacle");
+	auto placeObstruction = new CustomButton(toolsWindow, "Obstacle");
 	placeObstruction->setFlags(Button::RadioButton);
 	placeObstruction->setCallback([this]() {
 		m_navPainter.setCurrentBrush(NavPainter::BrushType::Obstacle);

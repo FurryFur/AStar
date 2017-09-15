@@ -18,24 +18,6 @@ Node::Node(Window * window, NavPainter& navPainter, size_t row, size_t col)
 void Node::draw(NVGcontext * ctx)
 {
 	nvgSave(ctx);
-
-	nvgBeginPath(ctx);
-	nvgRect(ctx, static_cast<float>(mPos.x()), static_cast<float>(mPos.y()), static_cast<float>(mSize.x()), static_cast<float>(mSize.y()));
-	if (m_obstructed) {
-		nvgFillColor(ctx, nvgRGBA(255, 0, 0, 255));
-		nvgFill(ctx);
-	} else if (m_isStart) {
-		nvgFillColor(ctx, nvgRGBA(0, 100, 200, 255));
-		nvgFill(ctx);
-	} else if (m_isEnd) {
-		nvgFillColor(ctx, nvgRGBA(100, 0, 200, 255));
-		nvgFill(ctx);
-	} else {
-		nvgStrokeWidth(ctx, 5.0f);
-		nvgStrokeColor(ctx, nvgRGBA(255, 0, 0, 255));
-		nvgStroke(ctx);
-	}
-
 	
 	for (ref<Node> node : m_connections) {
 		nvgStrokeWidth(ctx, 5.0f);
@@ -49,6 +31,26 @@ void Node::draw(NVGcontext * ctx)
 		float endX = node->mPos.x() + node->mSize.x() / 2.0f;
 		float endY = node->mPos.y() + node->mSize.y() / 2.0f;
 		nvgLineTo(ctx, endX, endY);
+		nvgStroke(ctx);
+	}
+
+	nvgBeginPath(ctx);
+	nvgRect(ctx, static_cast<float>(mPos.x()), static_cast<float>(mPos.y()), static_cast<float>(mSize.x()), static_cast<float>(mSize.y()));
+	if (m_obstructed) {
+		nvgFillColor(ctx, nvgRGBA(255, 0, 0, 255));
+		nvgFill(ctx);
+	}
+	else if (m_isStart) {
+		nvgFillColor(ctx, nvgRGBA(0, 100, 200, 180));
+		nvgFill(ctx);
+	}
+	else if (m_isEnd) {
+		nvgFillColor(ctx, nvgRGBA(100, 0, 200, 180));
+		nvgFill(ctx);
+	}
+	else {
+		nvgStrokeWidth(ctx, 5.0f);
+		nvgStrokeColor(ctx, nvgRGBA(255, 0, 0, 255));
 		nvgStroke(ctx);
 	}
 

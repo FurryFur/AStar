@@ -83,6 +83,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
+    <ClCompile Include="CustomButton.cpp" />
     <ClCompile Include="Grid.cpp" />
     <ClCompile Include="NavPainter.cpp" />
     <ClCompile Include="Node.cpp" />
@@ -90,6 +91,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
+    <ClInclude Include="CustomButton.h" />
     <ClInclude Include="Grid.h" />
     <ClInclude Include="NavPainter.h" />
     <ClInclude Include="Node.h" />
