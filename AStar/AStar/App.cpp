@@ -3,9 +3,10 @@
 
 using namespace nanogui;
 
-AStarApp::AStarApp() 
-	: m_modulation{ 5 }
-	, Screen(Vector2i(1024, 850), "AStar")
+AStarApp::AStarApp()
+	: Screen(Vector2i(1024, 850), "AStar")
+	, m_modulation{ 5 }
+	, m_currentBrush{ BrushType::Start }
 {
 	/**
 	* Add a window.
@@ -57,6 +58,28 @@ AStarApp::AStarApp()
 	auto button = new Button(window3, "SIMULATE");
 	button->setBackgroundColor(Color(255, 0, 0, 1));
 	button->setFixedSize({ 500, 100 });
+
+	Window* toolsWindow = new Window(this, "Brush");
+	toolsWindow->setPosition({ 907, 15 });
+	toolsWindow->setLayout(new GroupLayout());
+
+	// Setup brush pallet
+	auto placeStartTool = new Button(toolsWindow, "Start");
+	placeStartTool->setPushed(true);
+	placeStartTool->setFlags(Button::RadioButton);
+	placeStartTool->setCallback([this]() {
+		m_currentBrush = BrushType::Start;
+	});
+	auto placeEndTool = new Button(toolsWindow, "End");
+	placeEndTool->setFlags(Button::RadioButton);
+	placeEndTool->setCallback([this]() {
+		m_currentBrush = BrushType::End;
+	});
+	auto placeObstruction = new Button(toolsWindow, "Obstacle");
+	placeObstruction->setFlags(Button::RadioButton);
+	placeObstruction->setCallback([this]() {
+		m_currentBrush = BrushType::Obstacle;
+	});
 
 	// Do the layout calculations based on what was added to the GUI
 	performLayout();

@@ -43,6 +43,11 @@ public:
 	// Returns whether two nodes are connectable.
 	bool areConnectable(nanogui::ref<Node> from, nanogui::ref<Node> to) const;
 
+	nanogui::ref<Node> getStartNode();
+	nanogui::ref<Node> getEndNode();
+	void setStartNode(nanogui::ref<Node> startNode);
+	void setEndNode(nanogui::ref<Node> endNode);
+
 private:
 	NDArray<nanogui::ref<Node>, s_kGridSize, s_kGridSize> m_internalGrid;
 	nanogui::ref<Node> m_startNode;

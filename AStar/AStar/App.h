@@ -16,6 +16,14 @@ public:
 	virtual void draw(NVGcontext* ctx) override;
 
 private:
+
+	enum BrushType {
+		Start,
+		End,
+		Obstacle
+	};
+
+	BrushType m_currentBrush;
 	nanogui:: GLShader m_shader;
 	float m_modulation;
 	Grid m_grid;

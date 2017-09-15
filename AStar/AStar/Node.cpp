@@ -95,7 +95,8 @@ bool Node::connect(ref<Node> node)
 		return false;
 
 	// Add connection to node if one doesn't already exist
-	if (std::find(m_connections.begin(), m_connections.end(), node) == m_connections.end()) {
+	auto it = std::find(m_connections.begin(), m_connections.end(), node);
+	if (it == m_connections.end()) {
 		node->m_connections.push_back(this); // From that to this
 		m_connections.push_back(std::move(node)); // From this to that
 		return true;
@@ -117,6 +118,22 @@ size_t Node::getCol() const
 bool Node::isObstructed() const
 {
 	return m_obstructed;
+}
+
+bool Node::isStart() const
+{
+	ref<Node> startNode = m_grid.getStartNode();
+	return startNode
+	    && startNode->getRow() == m_row
+	    && startNode->getCol() == m_col;
+}
+
+bool Node::isEnd() const
+{
+	ref<Node> endNode = m_grid.getStartNode();
+	return endNode
+	    && endNode->getRow() == m_row
+	    && endNode->getCol() == m_col;
 }
 
 bool Node::connect(nanogui::ref<Node> node1, nanogui::ref<Node> node2)
@@ -175,7 +192,7 @@ void Node::obstructionEvent(bool obstructed)
 	m_obstructed = obstructed;
 
 	if (obstructed) {
-		// Remove cardinal nodes diagonal connections around this node
+		// Remove cardinal nodes' diagonal connections around this node
 		removeConnection(m_grid[m_row - 1][m_col], m_grid[m_row][m_col - 1]);
 		removeConnection(m_grid[m_row][m_col - 1], m_grid[m_row + 1][m_col]);
 		removeConnection(m_grid[m_row + 1][m_col], m_grid[m_row][m_col + 1]);
@@ -202,7 +219,7 @@ void Node::obstructionEvent(bool obstructed)
 			}
 		}
 
-		// Recconnect cardinal nodes diagonal connections around this node
+		// Recconnect cardinal nodes' diagonal connections around this node
 		ref<Node> node1 = m_grid[m_row - 1][m_col];
 		ref<Node> node2 = m_grid[m_row][m_col - 1];
 		ref<Node> node3 = m_grid[m_row + 1][m_col];

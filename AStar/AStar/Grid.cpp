@@ -72,6 +72,26 @@ bool Grid::areConnectable(nanogui::ref<Node> from, nanogui::ref<Node> to) const
 	return true;
 }
 
+nanogui::ref<Node> Grid::getStartNode()
+{
+	return m_startNode;
+}
+
+nanogui::ref<Node> Grid::getEndNode()
+{
+	return m_endNode;
+}
+
+void Grid::setStartNode(nanogui::ref<Node> startNode)
+{
+	m_startNode = std::move(startNode);
+}
+
+void Grid::setEndNode(nanogui::ref<Node> endNode)
+{
+	m_endNode = std::move(endNode);
+}
+
 Grid::IndexProxy::IndexProxy(const std::array<nanogui::ref<Node>, s_kGridSize>* _array) : 
 	m_array(_array) 
 { 

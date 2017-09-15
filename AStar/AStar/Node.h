@@ -28,6 +28,8 @@ public:
 	size_t getRow() const;
 	size_t getCol() const;
 	bool isObstructed() const;
+	bool isStart() const;
+	bool isEnd() const;
 
 	// Adds a pathing connection between the specified nodes.
 	// Returns true if a new connection was made.
