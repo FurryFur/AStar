@@ -6,10 +6,11 @@
 #include <nanogui/nanogui.h>
 
 class Grid;
+class NavPainter;
 
 class Node : public nanogui::Widget {
 public:
-	Node(nanogui::Window* window, Grid& grid, size_t row, size_t col);
+	Node(nanogui::Window* window, NavPainter& navPaint, size_t row, size_t col);
 
 	// Draws the cell.
 	virtual void draw(NVGcontext* ctx) override;
@@ -27,17 +28,17 @@ public:
 
 	size_t getRow() const;
 	size_t getCol() const;
-	bool isObstructed() const;
+	void setIsStart(bool isStart);
+	void setIsEnd(bool isEnd);
 	bool isStart() const;
 	bool isEnd() const;
+	void setObstructed(bool isObstructed);
+	bool isObstructed() const;
 
 	// Adds a pathing connection between the specified nodes.
 	// Returns true if a new connection was made.
 	// Returns false if the connection already exists or either of the specified nodes are null.
 	static bool connect(nanogui::ref<Node> node1, nanogui::ref<Node> node2);
-
-	static const size_t s_kGridSize = 16;
-private:
 
 	// Removes the pathing connection to the specified node.
 	// Returns false if no connection was found or specified node was null.
@@ -51,11 +52,19 @@ private:
 	// Returns an iterator pointing to the connection following the one that was removed.
 	std::list<nanogui::ref<Node>>::iterator removeConnection(std::list<nanogui::ref<Node>>::iterator nodeIt);
 
-	void obstructionEvent(bool obstructed);
+	// Returns an iterator pointing to the beginning of the connection list
+	std::list<nanogui::ref<Node>>::iterator getConnectionListBegin();
 
+	// Returns an iterator point to the end of the connection list
+	std::list<nanogui::ref<Node>>::iterator getConnectionListEnd();
+
+	static const size_t s_kGridSize = 16;
+private:
 	bool m_obstructed;
+	bool m_isStart;
+	bool m_isEnd;
+	NavPainter& m_navPainter;
 	std::list<nanogui::ref<Node>> m_connections;
-	Grid& m_grid;
 	size_t m_row;
 	size_t m_col;
 };

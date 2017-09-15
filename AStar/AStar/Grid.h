@@ -1,14 +1,17 @@
 #pragma once
 
 #include <array>
-#include <nanogui\object.h>
 
 #include "Utils.h"
 
 class Node;
 
-class Grid
-{
+namespace nanogui {
+	template<class T>
+	class ref;
+}
+
+class Grid {
 public:
 	static const size_t s_kGridSize = 16;
 
@@ -43,9 +46,15 @@ public:
 	// Returns whether two nodes are connectable.
 	bool areConnectable(nanogui::ref<Node> from, nanogui::ref<Node> to) const;
 
-	nanogui::ref<Node> getStartNode();
-	nanogui::ref<Node> getEndNode();
+	nanogui::ref<Node> getStartNode() const;
+	nanogui::ref<Node> getEndNode() const;
+
+	// Sets the starting node for pathing
+	// Handles informing nodes of their new state.
 	void setStartNode(nanogui::ref<Node> startNode);
+
+	// Sets the end node for pathing.
+	// Handles informing nodes of their new state.
 	void setEndNode(nanogui::ref<Node> endNode);
 
 private:

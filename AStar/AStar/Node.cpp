@@ -2,17 +2,17 @@
 
 #include "Node.h"
 #include "Grid.h"
+#include "NavPainter.h"
 
 using namespace nanogui;
 
-Node::Node(Window * window, Grid& grid, size_t row, size_t col)
+Node::Node(Window * window, NavPainter& navPainter, size_t row, size_t col)
 	: Widget(window)
-	, m_grid{ grid }
+	, m_navPainter{ navPainter }
 	, m_row{ row }
 	, m_col{ col }
 	, m_obstructed{ false } 
 {
-	grid.setGridNode(row, col, this);
 }
 
 void Node::draw(NVGcontext * ctx)
@@ -23,6 +23,12 @@ void Node::draw(NVGcontext * ctx)
 	nvgRect(ctx, static_cast<float>(mPos.x()), static_cast<float>(mPos.y()), static_cast<float>(mSize.x()), static_cast<float>(mSize.y()));
 	if (m_obstructed) {
 		nvgFillColor(ctx, nvgRGBA(255, 0, 0, 255));
+		nvgFill(ctx);
+	} else if (m_isStart) {
+		nvgFillColor(ctx, nvgRGBA(0, 100, 200, 255));
+		nvgFill(ctx);
+	} else if (m_isEnd) {
+		nvgFillColor(ctx, nvgRGBA(100, 0, 200, 255));
 		nvgFill(ctx);
 	} else {
 		nvgStrokeWidth(ctx, 5.0f);
@@ -53,15 +59,8 @@ void Node::draw(NVGcontext * ctx)
 
 bool Node::mouseButtonEvent(const Vector2i & p, int button, bool down, int modifiers)
 {
-	if (button == GLFW_MOUSE_BUTTON_1 && down) {
-		if (!m_obstructed)
-			obstructionEvent(true);
-
-		return true;
-	}
-	if (button == GLFW_MOUSE_BUTTON_2 && down) {
-		if (m_obstructed)
-			obstructionEvent(false);
+	if ((button == GLFW_MOUSE_BUTTON_1 || button == GLFW_MOUSE_BUTTON_2) && down) {
+		m_navPainter.paintEvent(button, this);
 
 		return true;
 	}
@@ -71,22 +70,17 @@ bool Node::mouseButtonEvent(const Vector2i & p, int button, bool down, int modif
 
 bool Node::mouseEnterEvent(const Vector2i & p, bool enter)
 {
-	Widget::mouseEnterEvent(p, enter);
+	if (enter) {
+		int button1State = glfwGetMouseButton(this->screen()->glfwWindow(), GLFW_MOUSE_BUTTON_1);
+		int button2State = glfwGetMouseButton(this->screen()->glfwWindow(), GLFW_MOUSE_BUTTON_2);
 
-	if (enter && glfwGetMouseButton(this->screen()->glfwWindow(), GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) {
-		if (!m_obstructed)
-			obstructionEvent(true);
-
-		return true;
-	}
-	if (enter && glfwGetMouseButton(this->screen()->glfwWindow(), GLFW_MOUSE_BUTTON_2) == GLFW_PRESS) {
-		if (m_obstructed)
-			obstructionEvent(false);
-
-		return true;
+		if (button1State == GLFW_PRESS)
+			return m_navPainter.paintEvent(GLFW_MOUSE_BUTTON_1, this);
+		if (button2State == GLFW_PRESS)
+			return m_navPainter.paintEvent(GLFW_MOUSE_BUTTON_2, this);
 	}
 
-	return false;
+	return Widget::mouseEnterEvent(p, enter);
 }
 
 bool Node::connect(ref<Node> node)
@@ -115,25 +109,34 @@ size_t Node::getCol() const
 	return m_col;
 }
 
-bool Node::isObstructed() const
+void Node::setIsStart(bool isStart)
 {
-	return m_obstructed;
+	m_isStart = isStart;
+}
+
+void Node::setIsEnd(bool isEnd)
+{
+	m_isEnd = isEnd;
 }
 
 bool Node::isStart() const
 {
-	ref<Node> startNode = m_grid.getStartNode();
-	return startNode
-	    && startNode->getRow() == m_row
-	    && startNode->getCol() == m_col;
+	return m_isStart;
 }
 
 bool Node::isEnd() const
 {
-	ref<Node> endNode = m_grid.getStartNode();
-	return endNode
-	    && endNode->getRow() == m_row
-	    && endNode->getCol() == m_col;
+	return m_isEnd;
+}
+
+void Node::setObstructed(bool isObstructed)
+{
+	m_obstructed = isObstructed;
+}
+
+bool Node::isObstructed() const
+{
+	return m_obstructed;
 }
 
 bool Node::connect(nanogui::ref<Node> node1, nanogui::ref<Node> node2)
@@ -187,50 +190,12 @@ std::list<ref<Node>>::iterator Node::removeConnection(std::list<nanogui::ref<Nod
 	return m_connections.erase(nodeIt);
 }
 
-void Node::obstructionEvent(bool obstructed)
+std::list<nanogui::ref<Node>>::iterator Node::getConnectionListBegin()
 {
-	m_obstructed = obstructed;
+	return m_connections.begin();
+}
 
-	if (obstructed) {
-		// Remove cardinal nodes' diagonal connections around this node
-		removeConnection(m_grid[m_row - 1][m_col], m_grid[m_row][m_col - 1]);
-		removeConnection(m_grid[m_row][m_col - 1], m_grid[m_row + 1][m_col]);
-		removeConnection(m_grid[m_row + 1][m_col], m_grid[m_row][m_col + 1]);
-		removeConnection(m_grid[m_row][m_col + 1], m_grid[m_row - 1][m_col]);
-
-		// Remove connections with this node
-		auto it = m_connections.begin();
-		while (it != m_connections.end()) {
-			it = removeConnection(it);
-		}
-	} else {
-		// Reconnect the now unobstructed node
-		for (int relR = -1; relR <= 1; ++relR) {
-			for (int relC = -1; relC <= 1; ++relC) {
-				if (relR == 0 && relC == 0)
-					continue;
-
-				size_t row = m_row + relR;
-				size_t col = m_col + relC;
-				ref<Node> node = m_grid[row][col];
-
-				if (m_grid.areConnectable(this, node))
-					connect(node);
-			}
-		}
-
-		// Recconnect cardinal nodes' diagonal connections around this node
-		ref<Node> node1 = m_grid[m_row - 1][m_col];
-		ref<Node> node2 = m_grid[m_row][m_col - 1];
-		ref<Node> node3 = m_grid[m_row + 1][m_col];
-		ref<Node> node4 = m_grid[m_row][m_col + 1];
-		if (m_grid.areConnectable(node1, node2))
-			connect(node1, node2);
-		if (m_grid.areConnectable(node2, node3))
-			connect(node2, node3);
-		if (m_grid.areConnectable(node3, node4))
-			connect(node3, node4);
-		if (m_grid.areConnectable(node4, node1))
-			connect(node4, node1);
-	}
+std::list<nanogui::ref<Node>>::iterator Node::getConnectionListEnd()
+{
+	return m_connections.end();
 }

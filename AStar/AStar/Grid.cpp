@@ -1,5 +1,7 @@
 #include <math.h>
 
+#include <nanogui\object.h>
+
 #include "Grid.h"
 #include "Node.h"
 
@@ -72,24 +74,36 @@ bool Grid::areConnectable(nanogui::ref<Node> from, nanogui::ref<Node> to) const
 	return true;
 }
 
-nanogui::ref<Node> Grid::getStartNode()
+nanogui::ref<Node> Grid::getStartNode() const
 {
 	return m_startNode;
 }
 
-nanogui::ref<Node> Grid::getEndNode()
+nanogui::ref<Node> Grid::getEndNode() const
 {
 	return m_endNode;
 }
 
 void Grid::setStartNode(nanogui::ref<Node> startNode)
 {
+	if (m_startNode)
+		m_startNode->setIsStart(false);
+
 	m_startNode = std::move(startNode);
+
+	if (m_startNode)
+		m_startNode->setIsStart(true);
 }
 
 void Grid::setEndNode(nanogui::ref<Node> endNode)
 {
+	if (m_endNode)
+		m_endNode->setIsEnd(false);
+
 	m_endNode = std::move(endNode);
+
+	if (m_endNode)
+		m_endNode->setIsEnd(true);
 }
 
 Grid::IndexProxy::IndexProxy(const std::array<nanogui::ref<Node>, s_kGridSize>* _array) : 

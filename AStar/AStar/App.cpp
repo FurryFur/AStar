@@ -6,7 +6,8 @@ using namespace nanogui;
 AStarApp::AStarApp()
 	: Screen(Vector2i(1024, 850), "AStar")
 	, m_modulation{ 5 }
-	, m_currentBrush{ BrushType::Start }
+	, m_grid{}
+	, m_navPainter{ m_grid }
 {
 	/**
 	* Add a window.
@@ -30,8 +31,9 @@ AStarApp::AStarApp()
 	// Create pathing nodes
 	for (size_t i = 0; i < Node::s_kGridSize; ++i) {
 		for (size_t j = 0; j < Node::s_kGridSize; ++j) {
-			auto node = new Node(window2, m_grid, i, j);
+			auto node = new Node(window2, m_navPainter, i, j);
 			node->setFixedSize({ 50, 50 });
+			m_grid.setGridNode(i, j, node);
 		}
 	}
 	
@@ -68,17 +70,17 @@ AStarApp::AStarApp()
 	placeStartTool->setPushed(true);
 	placeStartTool->setFlags(Button::RadioButton);
 	placeStartTool->setCallback([this]() {
-		m_currentBrush = BrushType::Start;
+		m_navPainter.setCurrentBrush(NavPainter::BrushType::Start);
 	});
 	auto placeEndTool = new Button(toolsWindow, "End");
 	placeEndTool->setFlags(Button::RadioButton);
 	placeEndTool->setCallback([this]() {
-		m_currentBrush = BrushType::End;
+		m_navPainter.setCurrentBrush(NavPainter::BrushType::End);
 	});
 	auto placeObstruction = new Button(toolsWindow, "Obstacle");
 	placeObstruction->setFlags(Button::RadioButton);
 	placeObstruction->setCallback([this]() {
-		m_currentBrush = BrushType::Obstacle;
+		m_navPainter.setCurrentBrush(NavPainter::BrushType::Obstacle);
 	});
 
 	// Do the layout calculations based on what was added to the GUI
