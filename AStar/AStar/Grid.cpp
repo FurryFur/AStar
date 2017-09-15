@@ -1,7 +1,12 @@
+#include <math.h>
+
 #include "Grid.h"
 #include "Node.h"
 
 Grid::Grid()
+	: m_internalGrid{}
+	, m_startNode{}
+	, m_endNode{}
 {
 }
 
@@ -29,6 +34,42 @@ const Grid::IndexProxy Grid::operator[](size_t row) const
 		return Grid::IndexProxy(&m_internalGrid[row]);
 
 	return Grid::IndexProxy(nullptr);
+}
+
+bool Grid::areConnectable(nanogui::ref<Node> from, nanogui::ref<Node> to) const
+{
+	// Null and direct obstruction check
+	if (!from || !to || from->isObstructed() || to->isObstructed())
+		return false;
+
+	// Get row and column info
+	size_t fromR = from->getRow();
+	size_t fromC = from->getCol();
+	size_t toR = to->getRow();
+	size_t toC = to->getCol();
+
+	// Calculate relative offset
+	int relR = static_cast<int>(toR - fromR);
+	int relC = static_cast<int>(toC - fromC);
+
+	// If more than one cell width away, then the 'to' node is unreachable
+	if (std::abs(relR) > 1 || std::abs(relC) > 1)
+		return false;
+
+	// If 'to' node is non-diagonal then it is reachable
+	if (relR == 0 || relC == 0)
+		return true;
+
+	// Check cross diagonal
+	size_t crossDiagR = fromR + relR;
+	size_t crossDiagC = fromC + relC;
+	const nanogui::ref<Node>& crossDiag1 = m_internalGrid[crossDiagR][fromC];
+	const nanogui::ref<Node>& crossDiag2 = m_internalGrid[fromR][crossDiagC];
+	if (crossDiag1->isObstructed() || crossDiag2->isObstructed())
+		return false;
+
+	// If no obstructions were found then the 'to' node must be reachable
+	return true;
 }
 
 Grid::IndexProxy::IndexProxy(const std::array<nanogui::ref<Node>, s_kGridSize>* _array) : 

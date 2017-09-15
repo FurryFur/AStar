@@ -9,7 +9,7 @@ class Grid;
 
 class Node : public nanogui::Widget {
 public:
-	Node(nanogui::Window* window, size_t row, size_t col, Grid& grid);
+	Node(nanogui::Window* window, Grid& grid, size_t row, size_t col);
 
 	// Draws the cell.
 	virtual void draw(NVGcontext* ctx) override;
@@ -24,6 +24,10 @@ public:
 	// Returns true if a new connection was made.
 	// Returns false if the connection already exists or the specified node is null.
 	bool connect(nanogui::ref<Node> node);
+
+	size_t getRow() const;
+	size_t getCol() const;
+	bool isObstructed() const;
 
 	// Adds a pathing connection between the specified nodes.
 	// Returns true if a new connection was made.

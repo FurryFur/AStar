@@ -3,9 +3,9 @@
 
 using namespace nanogui;
 
-AStarApp::AStarApp() :
-	m_modulation{ 5 },
-	Screen(Vector2i(1024, 850), "AStar")
+AStarApp::AStarApp() 
+	: m_modulation{ 5 }
+	, Screen(Vector2i(1024, 850), "AStar")
 {
 	/**
 	* Add a window.
@@ -29,7 +29,7 @@ AStarApp::AStarApp() :
 	// Create pathing nodes
 	for (size_t i = 0; i < Node::s_kGridSize; ++i) {
 		for (size_t j = 0; j < Node::s_kGridSize; ++j) {
-			auto node = new Node(window2, i, j, m_grid);
+			auto node = new Node(window2, m_grid, i, j);
 			node->setFixedSize({ 50, 50 });
 		}
 	}

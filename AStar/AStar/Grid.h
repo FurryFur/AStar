@@ -40,7 +40,12 @@ public:
 	// always returns a null reference when indexed into.
 	const IndexProxy operator[](size_t row) const;
 
+	// Returns whether two nodes are connectable.
+	bool areConnectable(nanogui::ref<Node> from, nanogui::ref<Node> to) const;
+
 private:
 	NDArray<nanogui::ref<Node>, s_kGridSize, s_kGridSize> m_internalGrid;
+	nanogui::ref<Node> m_startNode;
+	nanogui::ref<Node> m_endNode;
 };
 
