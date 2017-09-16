@@ -86,7 +86,7 @@ void PathFinder::calculatePath()
 
 		curNode->setStrokeColor(nvgRGBA(255, 255, 0, 255));
 		if (curNode != m_startNode && curNode != m_endNode)
-			curNode->setFillColor(nvgRGBA(0, 0, 100, 50));
+			curNode->setFillColor(nvgRGBA(0, 0, 100, 100));
 		
 		if (curNode == m_endNode)
 			break;
@@ -111,12 +111,12 @@ void PathFinder::calculatePath()
 				frontier.emplace(nextNode, priority);
 
 				if (nextNode != m_startNode && nextNode != m_endNode)
-					nextNode->setFillColor(nvgRGBA(0, 0, 100, 200));
+					nextNode->setFillColor(nvgRGBA(0, 0, 100, 225));
 
 				std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 				if (nextNode != m_startNode && nextNode != m_endNode)
-					nextNode->setFillColor(nvgRGBA(0, 0, 100, 150));
+					nextNode->setFillColor(nvgRGBA(0, 0, 100, 200));
 			}
 		}
 	}
