@@ -68,3 +68,15 @@ private:
 	size_t m_row;
 	size_t m_col;
 };
+
+// Specialization for hashing node references so that they can
+// be placed in unordered maps
+namespace std {
+	template <>
+	struct hash<nanogui::ref<Node>> {
+		size_t operator()(const nanogui::ref<Node>& x) const
+		{
+			std::hash<const Node*>()(x.get());
+		}
+	};
+}
