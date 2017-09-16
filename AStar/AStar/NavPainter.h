@@ -2,6 +2,7 @@
 
 class Node;
 class Grid;
+class PathFinder;
 
 namespace nanogui {
 	template<class T>
@@ -16,7 +17,7 @@ public:
 		Obstacle
 	};
 
-	NavPainter(Grid& grid);
+	NavPainter(Grid& grid, PathFinder& pathFinder);
 	~NavPainter();
 
 	bool paintEvent(int button, nanogui::ref<Node> node);
@@ -28,5 +29,6 @@ private:
 
 	BrushType m_currentBrush;
 	Grid& m_grid;
+	PathFinder& m_pathFinder;
 };
 

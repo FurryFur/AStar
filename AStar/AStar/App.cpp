@@ -1,3 +1,5 @@
+#include <future>
+
 #include "App.h"
 #include "Node.h"
 #include "CustomButton.h"
@@ -8,7 +10,8 @@ AStarApp::AStarApp()
 	: Screen(Vector2i(1024, 850), "AStar")
 	, m_modulation{ 5 }
 	, m_grid{}
-	, m_navPainter{ m_grid }
+	, m_pathFinder{}
+	, m_navPainter{ m_grid, m_pathFinder }
 {
 	/**
 	* Add a window.
@@ -55,18 +58,21 @@ AStarApp::AStarApp()
 		}
 	}
 
+	// Setup the simulate button
 	Window* window3 = new Window(this, "");
 	window3->setPosition({ 450, 700 });
 	window3->setLayout(new GroupLayout());
 	auto button = new Button(window3, "SIMULATE");
 	button->setBackgroundColor(Color(255, 0, 0, 1));
 	button->setFixedSize({ 500, 100 });
+	button->setCallback([this]() {
+		m_pathingFuture = std::async(std::bind(&PathFinder::calculatePath, &m_pathFinder));
+	});
 
+	// Setup brush pallet
 	Window* toolsWindow = new Window(this, "Brush");
 	toolsWindow->setPosition({ 907, 15 });
 	toolsWindow->setLayout(new GroupLayout());
-
-	// Setup brush pallet
 	auto placeStartTool = new CustomButton(toolsWindow, "Start");
 	placeStartTool->setPushed(true);
 	placeStartTool->setFlags(Button::RadioButton);

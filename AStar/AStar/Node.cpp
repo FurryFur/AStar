@@ -11,16 +11,26 @@ Node::Node(Window * window, NavPainter& navPainter, size_t row, size_t col)
 	, m_navPainter{ navPainter }
 	, m_row{ row }
 	, m_col{ col }
-	, m_obstructed{ false } 
+	, m_obstructed{ false }
+	, m_fillColor(nvgRGBA(0, 0, 0, 0))
+	, m_strokeColor(nvgRGBA(255, 0, 0, 255))
 {
 }
 
 void Node::draw(NVGcontext * ctx)
 {
 	nvgSave(ctx);
-	
+
+	// Draw node outline
+	nvgBeginPath(ctx);
+	nvgRect(ctx, static_cast<float>(mPos.x()), static_cast<float>(mPos.y()), static_cast<float>(mSize.x()), static_cast<float>(mSize.y()));
+	nvgStrokeWidth(ctx, 4.0f);
+	nvgStrokeColor(ctx, m_strokeColor);
+	nvgStroke(ctx);
+
+	// Draw node connections
 	for (ref<Node> node : m_connections) {
-		nvgStrokeWidth(ctx, 5.0f);
+		nvgStrokeWidth(ctx, 3.0f);
 		nvgStrokeColor(ctx, nvgRGBA(0, 255, 0, 160));
 		nvgBeginPath(ctx);
 		// Move to center of node
@@ -34,24 +44,12 @@ void Node::draw(NVGcontext * ctx)
 		nvgStroke(ctx);
 	}
 
+	// Fill node
 	nvgBeginPath(ctx);
-	nvgRect(ctx, static_cast<float>(mPos.x()), static_cast<float>(mPos.y()), static_cast<float>(mSize.x()), static_cast<float>(mSize.y()));
-	if (m_obstructed) {
-		nvgFillColor(ctx, nvgRGBA(255, 0, 0, 255));
+	nvgRect(ctx, static_cast<float>(mPos.x() + 2), static_cast<float>(mPos.y() + 2), static_cast<float>(mSize.x() - 4), static_cast<float>(mSize.y() - 4));
+	if (m_fillColor.a != 0) {
+		nvgFillColor(ctx, m_fillColor);
 		nvgFill(ctx);
-	}
-	else if (m_isStart) {
-		nvgFillColor(ctx, nvgRGBA(0, 100, 200, 180));
-		nvgFill(ctx);
-	}
-	else if (m_isEnd) {
-		nvgFillColor(ctx, nvgRGBA(100, 0, 200, 180));
-		nvgFill(ctx);
-	}
-	else {
-		nvgStrokeWidth(ctx, 5.0f);
-		nvgStrokeColor(ctx, nvgRGBA(255, 0, 0, 255));
-		nvgStroke(ctx);
 	}
 
 	nvgRestore(ctx);
@@ -95,26 +93,6 @@ size_t Node::getCol() const
 	return m_col;
 }
 
-void Node::setIsStart(bool isStart)
-{
-	m_isStart = isStart;
-}
-
-void Node::setIsEnd(bool isEnd)
-{
-	m_isEnd = isEnd;
-}
-
-bool Node::isStart() const
-{
-	return m_isStart;
-}
-
-bool Node::isEnd() const
-{
-	return m_isEnd;
-}
-
 void Node::setObstructed(bool isObstructed)
 {
 	m_obstructed = isObstructed;
@@ -123,6 +101,16 @@ void Node::setObstructed(bool isObstructed)
 bool Node::isObstructed() const
 {
 	return m_obstructed;
+}
+
+void Node::setFillColor(const NVGcolor& fillColor)
+{
+	m_fillColor = fillColor;
+}
+
+void Node::setStrokeColor(const NVGcolor& strokeColor)
+{
+	m_strokeColor = strokeColor;
 }
 
 bool Node::connect(nanogui::ref<Node> node1, nanogui::ref<Node> node2)

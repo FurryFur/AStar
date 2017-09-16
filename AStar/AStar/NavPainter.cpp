@@ -3,9 +3,11 @@
 #include "NavPainter.h"
 #include "Node.h"
 #include "Grid.h"
+#include "PathFinder.h"
 
-NavPainter::NavPainter(Grid& grid)
+NavPainter::NavPainter(Grid& grid, PathFinder& pathfinder)
 	: m_grid{ grid }
+	, m_pathFinder{ pathfinder }
 {
 }
 
@@ -19,26 +21,28 @@ bool NavPainter::paintEvent(int button, nanogui::ref<Node> node)
 	if (!node)
 		return false;
 
+	bool startOrEnd = m_pathFinder.isStart(node) || m_pathFinder.isEnd(node);
+
 	switch (m_currentBrush) {
 	case NavPainter::Start:
-		if (!node->isStart() && !node->isEnd() && !node->isObstructed()) {
-			m_grid.setStartNode(std::move(node));
+		if (!startOrEnd && !node->isObstructed()) {
+			m_pathFinder.setStartNode(std::move(node));
 			return true; // Handled / state change occured
 		}
 		break;
 	case NavPainter::End:
-		if (!node->isEnd() && !node->isEnd() && !node->isObstructed()) {
-			m_grid.setEndNode(std::move(node));
+		if (!startOrEnd && !node->isObstructed()) {
+			m_pathFinder.setEndNode(std::move(node));
 			return true; // Handled / state change occured
 		}
 		break;
 	case NavPainter::Obstacle:
-		if (!node->isObstructed() && !node->isStart() && !node->isEnd() && button == GLFW_MOUSE_BUTTON_1) {
+		if (!node->isObstructed() && !startOrEnd && button == GLFW_MOUSE_BUTTON_1) {
 			paintObstacle(*node);
 			return true; // Handled / state change occured
 		}
 
-		if (node->isObstructed() && !node->isStart() && !node->isEnd() && button == GLFW_MOUSE_BUTTON_2) {
+		if (node->isObstructed() && !startOrEnd && button == GLFW_MOUSE_BUTTON_2) {
 			clearObstacle(*node);
 			return true; // Handled / state change occured
 		}
@@ -56,6 +60,7 @@ void NavPainter::setCurrentBrush(BrushType brush)
 void NavPainter::paintObstacle(Node& node)
 {
 	node.setObstructed(true);
+	node.setFillColor(nvgRGBA(255, 0, 0, 255));
 
 	// Remove cardinal nodes' diagonal connections around this node
 	size_t row = node.getRow();
@@ -75,6 +80,7 @@ void NavPainter::paintObstacle(Node& node)
 void NavPainter::clearObstacle(Node& node)
 {
 	node.setObstructed(false);
+	node.setFillColor(nvgRGBA(0, 0, 0, 0));
 
 	// Reconnect the now unobstructed node
 	for (int relR = -1; relR <= 1; ++relR) {

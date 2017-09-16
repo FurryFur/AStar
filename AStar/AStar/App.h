@@ -1,9 +1,12 @@
 #pragma once
 
+#include <future>
+
 #include <nanogui\nanogui.h>
 
 #include "Grid.h"
 #include "NavPainter.h"
+#include "PathFinder.h"
 
 class AStarApp : public nanogui::Screen {
 public:
@@ -21,4 +24,6 @@ private:
 	float m_modulation;
 	Grid m_grid;
 	NavPainter m_navPainter;
+	PathFinder m_pathFinder;
+	std::future<void> m_pathingFuture;
 };

@@ -46,9 +46,6 @@ public:
 	// Returns whether two nodes are connectable.
 	bool areConnectable(Node* from, Node* to) const;
 
-	nanogui::ref<Node> getStartNode() const;
-	nanogui::ref<Node> getEndNode() const;
-
 	// Sets the starting node for pathing
 	// Handles informing nodes of their new state.
 	void setStartNode(nanogui::ref<Node> startNode);
@@ -59,7 +56,5 @@ public:
 
 private:
 	NDArray<nanogui::ref<Node>, s_kGridSize, s_kGridSize> m_internalGrid;
-	nanogui::ref<Node> m_startNode;
-	nanogui::ref<Node> m_endNode;
 };
 

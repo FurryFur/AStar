@@ -7,8 +7,6 @@
 
 Grid::Grid()
 	: m_internalGrid{}
-	, m_startNode{}
-	, m_endNode{}
 {
 }
 
@@ -72,38 +70,6 @@ bool Grid::areConnectable(Node* from, Node* to) const
 
 	// If no obstructions were found then the 'to' node must be reachable
 	return true;
-}
-
-nanogui::ref<Node> Grid::getStartNode() const
-{
-	return m_startNode;
-}
-
-nanogui::ref<Node> Grid::getEndNode() const
-{
-	return m_endNode;
-}
-
-void Grid::setStartNode(nanogui::ref<Node> startNode)
-{
-	if (m_startNode)
-		m_startNode->setIsStart(false);
-
-	m_startNode = std::move(startNode);
-
-	if (m_startNode)
-		m_startNode->setIsStart(true);
-}
-
-void Grid::setEndNode(nanogui::ref<Node> endNode)
-{
-	if (m_endNode)
-		m_endNode->setIsEnd(false);
-
-	m_endNode = std::move(endNode);
-
-	if (m_endNode)
-		m_endNode->setIsEnd(true);
 }
 
 Grid::IndexProxy::IndexProxy(const std::array<nanogui::ref<Node>, s_kGridSize>* _array) : 
