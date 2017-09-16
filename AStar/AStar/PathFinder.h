@@ -6,7 +6,7 @@
 
 #include <nanogui\object.h>
 
-#include "Node.h"
+class Node;
 
 class PathFinder {
 public:
@@ -19,8 +19,8 @@ public:
 private:
 	nanogui::ref<Node> m_startNode;
 	nanogui::ref<Node> m_endNode;
-	std::priority_queue <std::pair<size_t, nanogui::ref<Node>>> frontier;
-	std::unordered_map<nanogui::ref<Node>, nanogui::ref<Node>> cameFrom;
-	std::unordered_map<nanogui::ref<Node>, size_t> costSoFar;
+	std::priority_queue <std::pair<size_t, Node*>> frontier;
+	std::unordered_map<Node*, Node*> cameFrom;
+	std::unordered_map<Node*, size_t> costSoFar;
 };
 

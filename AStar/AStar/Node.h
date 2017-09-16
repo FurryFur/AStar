@@ -42,11 +42,11 @@ public:
 
 	// Removes the pathing connection to the specified node.
 	// Returns false if no connection was found or specified node was null.
-	bool removeConnection(nanogui::ref<Node> node);
+	bool removeConnection(Node* node);
 
 	// Removes the pathing connection between specified nodes.
 	// Returns false if no connection was found or either of the specified nodes are null.
-	static bool removeConnection(nanogui::ref<Node> node1, nanogui::ref<Node> node2);
+	static bool removeConnection(Node* node1, Node* node2);
 
 	// Removes the pathing connection to specified node via an iterator.
 	// Returns an iterator pointing to the connection following the one that was removed.
@@ -68,15 +68,3 @@ private:
 	size_t m_row;
 	size_t m_col;
 };
-
-// Specialization for hashing node references so that they can
-// be placed in unordered maps
-namespace std {
-	template <>
-	struct hash<nanogui::ref<Node>> {
-		size_t operator()(const nanogui::ref<Node>& x) const
-		{
-			std::hash<const Node*>()(x.get());
-		}
-	};
-}

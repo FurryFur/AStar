@@ -19,12 +19,12 @@ public:
 	NavPainter(Grid& grid);
 	~NavPainter();
 
-	bool paintEvent(int button, nanogui::ref<Node>);
+	bool paintEvent(int button, nanogui::ref<Node> node);
 	void setCurrentBrush(BrushType brush);
 
 private:
-	void paintObstacle(nanogui::ref<Node> node);
-	void clearObstacle(nanogui::ref<Node> node);
+	void paintObstacle(Node& node);
+	void clearObstacle(Node& node);
 
 	BrushType m_currentBrush;
 	Grid& m_grid;

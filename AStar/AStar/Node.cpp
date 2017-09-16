@@ -85,22 +85,6 @@ bool Node::mouseEnterEvent(const Vector2i & p, bool enter)
 	return Widget::mouseEnterEvent(p, enter);
 }
 
-bool Node::connect(ref<Node> node)
-{
-	if (!node)
-		return false;
-
-	// Add connection to node if one doesn't already exist
-	auto it = std::find(m_connections.begin(), m_connections.end(), node);
-	if (it == m_connections.end()) {
-		node->m_connections.push_back(this); // From that to this
-		m_connections.push_back(std::move(node)); // From this to that
-		return true;
-	}
-
-	return false;
-}
-
 size_t Node::getRow() const
 {
 	return m_row;
@@ -146,10 +130,26 @@ bool Node::connect(nanogui::ref<Node> node1, nanogui::ref<Node> node2)
 	if (!node1 || !node2)
 		return false;
 
-	return node1->connect(node2);
+	return node1->connect(std::move(node2));
 }
 
-bool Node::removeConnection(nanogui::ref<Node> node)
+bool Node::connect(ref<Node> node)
+{
+	if (!node)
+		return false;
+
+	// Add connection to node if one doesn't already exist
+	auto it = std::find(m_connections.begin(), m_connections.end(), node);
+	if (it == m_connections.end()) {
+		node->m_connections.push_back(this); // From that to this
+		m_connections.push_back(std::move(node)); // From this to that
+		return true;
+	}
+
+	return false;
+}
+
+bool Node::removeConnection(Node* node)
 {
 	if (!node)
 		return false;
@@ -157,7 +157,7 @@ bool Node::removeConnection(nanogui::ref<Node> node)
 	// Find and remove connection
 	auto it = m_connections.begin();
 	while (it != m_connections.end()) {
-		if (*it == node) {
+		if (it->get() == node) {
 			if (removeConnection(it) != m_connections.end())
 				return true;
 			else
@@ -170,7 +170,7 @@ bool Node::removeConnection(nanogui::ref<Node> node)
 	return false;
 }
 
-bool Node::removeConnection(nanogui::ref<Node> node1, nanogui::ref<Node> node2)
+bool Node::removeConnection(Node* node1, Node* node2)
 {
 	if (!node1 || !node2)
 		return false;

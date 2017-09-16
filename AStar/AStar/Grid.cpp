@@ -30,7 +30,7 @@ nanogui::ref<Node> Grid::getGridNode(size_t row, size_t col) const
 	return nanogui::ref<Node>{};
 }
 
-const Grid::IndexProxy Grid::operator[](size_t row) const
+Grid::IndexProxy Grid::operator[](size_t row) const
 {
 	if (row < m_internalGrid.size())
 		return Grid::IndexProxy(&m_internalGrid[row]);
@@ -38,7 +38,7 @@ const Grid::IndexProxy Grid::operator[](size_t row) const
 	return Grid::IndexProxy(nullptr);
 }
 
-bool Grid::areConnectable(nanogui::ref<Node> from, nanogui::ref<Node> to) const
+bool Grid::areConnectable(Node* from, Node* to) const
 {
 	// Null and direct obstruction check
 	if (!from || !to || from->isObstructed() || to->isObstructed())

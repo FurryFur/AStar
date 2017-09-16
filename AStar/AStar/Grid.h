@@ -41,10 +41,10 @@ public:
 	// Returns an index proxy pointing to the specified row in the grid.
 	// If an invalid row is supplied, a dummy index proxy is returned that 
 	// always returns a null reference when indexed into.
-	const IndexProxy operator[](size_t row) const;
+	IndexProxy operator[](size_t row) const;
 
 	// Returns whether two nodes are connectable.
-	bool areConnectable(nanogui::ref<Node> from, nanogui::ref<Node> to) const;
+	bool areConnectable(Node* from, Node* to) const;
 
 	nanogui::ref<Node> getStartNode() const;
 	nanogui::ref<Node> getEndNode() const;
