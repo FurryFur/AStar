@@ -7,7 +7,7 @@
 using namespace nanogui;
 
 AStarApp::AStarApp()
-	: Screen(Vector2i(1024, 850), "AStar")
+	: Screen(Vector2i(1500, 850), "AStar")
 	, m_modulation{ 5 }
 	, m_grid{}
 	, m_pathFinder{}
@@ -60,7 +60,7 @@ AStarApp::AStarApp()
 
 	// Setup the simulate button
 	Window* window3 = new Window(this, "");
-	window3->setPosition({ 450, 700 });
+	window3->setPosition({ 920, 685 });
 	window3->setLayout(new GroupLayout());
 	auto button = new Button(window3, "SIMULATE");
 	button->setBackgroundColor(Color(255, 0, 0, 1));
