@@ -28,10 +28,10 @@ public:
 
 	size_t getRow() const;
 	size_t getCol() const;
+	nanogui::Vector2i getPos() const;
+	nanogui::Vector2i getSize() const;
 	void setObstructed(bool isObstructed);
 	bool isObstructed() const;
-	void setFillColor(const NVGcolor& fillColor);
-	void setStrokeColor(const NVGcolor& strokeColor);
 
 	// Adds a pathing connection between the specified nodes.
 	// Returns true if a new connection was made.
@@ -57,12 +57,11 @@ public:
 	std::list<nanogui::ref<Node>>::iterator getConnectionListEnd();
 
 	static const size_t s_kGridSize = 16;
+	static const float s_kBorderWidth;
 private:
 	bool m_obstructed;
 	NavPainter& m_navPainter;
 	std::list<nanogui::ref<Node>> m_connections;
 	size_t m_row;
 	size_t m_col;
-	NVGcolor m_fillColor;
-	NVGcolor m_strokeColor;
 };

@@ -21,12 +21,7 @@ void PathFinder::setStartNode(nanogui::ref<Node> node)
 	if (!node)
 		return;
 
-	clearResults();
-
-	if (m_startNode)
-		m_startNode->setFillColor(nvgRGBA(0, 0, 0, 0));
-
-	node->setFillColor(nvgRGBA(0, 100, 200, 180));
+	clear();
 	m_startNode = std::move(node);
 }
 
@@ -35,12 +30,7 @@ void PathFinder::setEndNode(nanogui::ref<Node> node)
 	if (!node)
 		return;
 
-	clearResults();
-
-	if (m_endNode)
-		m_endNode->setFillColor(nvgRGBA(0, 0, 0, 0));
-
-	node->setFillColor(nvgRGBA(100, 0, 200, 180));
+	clear();
 	m_endNode = std::move(node);
 }
 
@@ -65,93 +55,157 @@ void PathFinder::calculatePath()
 	if (!m_startNode || !m_endNode)
 		return;
 
-	clearResults();
+	clear();
 
-	using PQContainerT = std::vector<NodePriorityPair>;
-	std::priority_queue<NodePriorityPair, PQContainerT, PriorityComparator> frontier;
-
-	// Add starting values to pathing graph
-	frontier.emplace(m_startNode, 0);
+	// Add starting values to search graph
+	m_frontier.emplace(m_startNode, 0);
 	m_cameFrom[m_startNode] = nullptr;
 	m_costSoFar[m_startNode] = 0;
 
-	Node* curNode = nullptr;
-	while (!frontier.empty()) {
-		if (curNode)
-			curNode->setStrokeColor(nvgRGBA(255, 0, 0, 255));
-
-		NodePriorityPair np = frontier.top();
-		curNode = getNode(np);
-		frontier.pop();
-
-		curNode->setStrokeColor(nvgRGBA(255, 255, 0, 255));
-		if (curNode != m_startNode && curNode != m_endNode)
-			curNode->setFillColor(nvgRGBA(0, 0, 100, 100));
+	m_curNode = nullptr;
+	while (!m_frontier.empty()) {
+		m_curNode = getNode(m_frontier.top());
+		m_frontier.pop();
 		
-		if (curNode == m_endNode)
+		if (m_curNode == m_endNode)
 			break;
 
 		// Explore neighbor nodes
-		auto nextIt = curNode->getConnectionListBegin();
-		auto end = curNode->getConnectionListEnd();
+		auto nextIt = m_curNode->getConnectionListBegin();
+		auto end = m_curNode->getConnectionListEnd();
 		for ( ; nextIt != end; ++nextIt) {
-			Node* nextNode = *nextIt;
-			float pathCost = getLinkCost(curNode, nextNode) + m_costSoFar.at(curNode);
+			m_nextNode = *nextIt;
+			float pathCost = getLinkCost(m_curNode, m_nextNode) + m_costSoFar.at(m_curNode);
 
-			// Check if we should add / update node in path graph
-			auto existingCostIt = m_costSoFar.find(nextNode);
+			// Check if we should add / update node in search graph
+			auto existingCostIt = m_costSoFar.find(m_nextNode);
 			bool notExplored = existingCostIt == m_costSoFar.end();
-			if (notExplored || pathCost < m_costSoFar.at(nextNode)) {
+			if (notExplored || pathCost < getCost(*existingCostIt)) {
 				// Update path graph
-				m_cameFrom[nextNode] = curNode;
-				m_costSoFar[nextNode] = pathCost;
+				m_cameFrom[m_nextNode] = m_curNode;
+				m_costSoFar[m_nextNode] = pathCost;
 
 				// Calculate priority and add to frontier
-				float priority = pathCost + heuristic(*nextNode, *m_endNode);
-				frontier.emplace(nextNode, priority);
+				float priority = pathCost + heuristic(*m_nextNode, *m_endNode);
+				m_frontier.emplace(m_nextNode, priority);
 
-				if (nextNode != m_startNode && nextNode != m_endNode)
-					nextNode->setFillColor(nvgRGBA(0, 0, 100, 225));
-
-				std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-				if (nextNode != m_startNode && nextNode != m_endNode)
-					nextNode->setFillColor(nvgRGBA(0, 0, 100, 200));
+				std::this_thread::sleep_for(std::chrono::milliseconds(25));
 			}
 		}
 	}
-
-	displayResults();
 }
 
-void PathFinder::clearResults()
+void PathFinder::clear()
 {
-	for (auto nodePair : m_cameFrom) {
-		Node* node = nodePair.first;
-		if (node != m_startNode && node != m_endNode) {
-			node->setFillColor(nvgRGBA(0, 0, 0, 0));
-			node->setStrokeColor(nvgRGBA(255, 0, 0, 255));
-		}
-	}
-
+	m_curNode = nullptr;
+	m_nextNode = nullptr;
+	m_frontier = {};
 	m_cameFrom.clear();
 	m_costSoFar.clear();
 }
 
-void PathFinder::displayResults()
+void PathFinder::fillNode(NVGcontext* ctx, const Node& node, const NVGcolor& color)
 {
-	/*for (auto nodePair : m_cameFrom) {
-		Node* node = nodePair.first;
-		if (node != m_startNode && node != m_endNode)
-			node->setFillColor(nvgRGBA(0, 0, 100, 50));
-	}*/
+	nvgBeginPath(ctx);
+	nvgRect(ctx,
+	        node.getPos().x() + Node::s_kBorderWidth / 2,
+	        node.getPos().y() + Node::s_kBorderWidth / 2,
+	        node.getSize().x() - Node::s_kBorderWidth,
+	        node.getSize().y() - Node::s_kBorderWidth);
+	nvgFillColor(ctx, color);
+	nvgFill(ctx);
+}
 
-	Node* curNode = m_endNode;
-	while (curNode) {
-		curNode->setStrokeColor(nvgRGBA(255, 255, 0, 255));
-		curNode = m_cameFrom.at(curNode);
+void PathFinder::strokeNode(NVGcontext* ctx, const Node& node, const NVGcolor& color)
+{
+	nvgBeginPath(ctx);
+	nvgRect(ctx,
+	        static_cast<float>(node.getPos().x()),
+	        static_cast<float>(node.getPos().y()),
+	        static_cast<float>(node.getSize().x()),
+	        static_cast<float>(node.getSize().y()));
+	nvgStrokeWidth(ctx, 4.0f);
+	nvgStrokeColor(ctx, color);
+	nvgStroke(ctx);
+}
+
+void PathFinder::drawGraphSegment(NVGcontext* ctx, const Node& nodeFrom, const Node& nodeTo, const NVGcolor& color)
+{
+	nvgStrokeWidth(ctx, 3.0f);
+	nvgStrokeColor(ctx, color);
+	nvgBeginPath(ctx);
+	// Move to center of node
+	float startX = nodeFrom.getPos().x() + nodeFrom.getSize().x() / 2.0f;
+	float startY = nodeFrom.getPos().y() + nodeFrom.getSize().y() / 2.0f;
+	nvgMoveTo(ctx, startX, startY);
+	// Draw to center of connected node
+	float endX = nodeTo.getPos().x() + nodeTo.getSize().x() / 2.0f;
+	float endY = nodeTo.getPos().y() + nodeTo.getSize().y() / 2.0f;
+	nvgLineTo(ctx, endX, endY);
+	nvgStroke(ctx);
+}
+
+void PathFinder::draw(NVGcontext* ctx)
+{
+	// Outline current node
+	if (m_curNode)
+		strokeNode(ctx, *m_curNode, nvgRGBA(255, 255, 0, 255));
+
+	// Highlight nodes
+	if (m_startNode)
+		fillNode(ctx, *m_startNode, nvgRGBA(0, 100, 200, 180));
+	if (m_endNode)
+		fillNode(ctx, *m_endNode, nvgRGBA(100, 0, 200, 180));
+	if (m_nextNode)
+		fillNode(ctx, *m_nextNode, nvgRGBA(0, 0, 100, 225));
+
+	for (auto it = m_cameFrom.begin(); it != m_cameFrom.end(); ++it) {
+		Node* nodeTo = it->first;
+
+		if (nodeTo && nodeTo != m_startNode && nodeTo != m_endNode && nodeTo != m_nextNode)
+			fillNode(ctx, *nodeTo, nvgRGBA(0, 0, 100, 100));
+	}
+
+	// Draw current search graph
+	for (auto it = m_cameFrom.begin(); it != m_cameFrom.end(); ++it) {
+		Node* nodeFrom = it->second;
+		Node* nodeTo = it->first;
+
+		// Draw search graph connections
+		if (nodeFrom && nodeTo) {
+			drawGraphSegment(ctx, *nodeFrom, *nodeTo, nvgRGBA(255, 255, 255, 200));
+		}
+	}
+
+	// Draw final path
+	if (m_curNode && m_curNode == m_endNode) {
+		Node* toNode = m_curNode;
+		Node* cameFrom = m_cameFrom.at(m_curNode);
+		while (toNode != nullptr) {
+			fillNode(ctx, *toNode, nvgRGBA(255, 255, 0, 150));
+			if (cameFrom)
+				drawGraphSegment(ctx, *cameFrom, *toNode, nvgRGBA(255, 255, 0, 255));
+			toNode = cameFrom;
+			if (cameFrom)
+				cameFrom = m_cameFrom.at(cameFrom);
+		}
 	}
 }
+
+//void PathFinder::displayResults()
+//{
+//	/*for (auto nodePair : m_cameFrom) {
+//		Node* node = nodePair.first;
+//		if (node != m_startNode && node != m_endNode)
+//			node->setFillColor(nvgRGBA(0, 0, 100, 50));
+//	}*/
+//
+//	Node* curNode = m_endNode;
+//	while (curNode) {
+//		curNode->setStrokeColor(nvgRGBA(255, 255, 0, 255));
+//		curNode = m_cameFrom.at(curNode);
+//	}
+//}
 
 float PathFinder::getLinkCost(const Node* nodeSrc, const Node* nodeDst)
 {

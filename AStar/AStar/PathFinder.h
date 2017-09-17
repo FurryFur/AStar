@@ -18,9 +18,12 @@ public:
 	bool isStart(const Node* node) const;
 	bool isEnd(const Node* node) const;
 	void calculatePath();
+	void draw(NVGcontext* ctx);
+	void clear();
 	
 private:
 	using NodePriorityPair = std::pair<Node*, float>;
+	using PQContainerT = std::vector<NodePriorityPair>;
 
 	class PriorityComparator {
 	public:
@@ -35,11 +38,15 @@ private:
 	static Node* getNode(const NodePriorityPair&);
 	static float getCost(const NodePriorityPair&);
 
-	void clearResults();
-	void displayResults();
+	void fillNode(NVGcontext* ctx, const Node& node, const NVGcolor& color);
+	void strokeNode(NVGcontext* ctx, const Node& node, const NVGcolor& color);
+	void drawGraphSegment(NVGcontext* ctx, const Node& nodeFrom, const Node& nodeTo, const NVGcolor& color);
 
 	nanogui::ref<Node> m_startNode;
 	nanogui::ref<Node> m_endNode;
+	Node* m_curNode;
+	Node* m_nextNode;
+	std::priority_queue<NodePriorityPair, PQContainerT, PriorityComparator> m_frontier;
 	std::unordered_map<Node*, Node*> m_cameFrom;
 	std::unordered_map<Node*, float> m_costSoFar;
 };

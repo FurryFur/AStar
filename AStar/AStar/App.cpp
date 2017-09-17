@@ -144,4 +144,5 @@ void AStarApp::draw(NVGcontext * ctx)
 	//nvgFill(ctx);
 
 	Screen::draw(ctx);
+	m_pathFinder.draw(ctx);
 }

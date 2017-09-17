@@ -6,14 +6,14 @@
 
 using namespace nanogui;
 
+const float Node::s_kBorderWidth = 4;
+
 Node::Node(Window * window, NavPainter& navPainter, size_t row, size_t col)
 	: Widget(window)
 	, m_navPainter{ navPainter }
 	, m_row{ row }
 	, m_col{ col }
 	, m_obstructed{ false }
-	, m_fillColor(nvgRGBA(0, 0, 0, 0))
-	, m_strokeColor(nvgRGBA(255, 0, 0, 255))
 {
 }
 
@@ -23,15 +23,19 @@ void Node::draw(NVGcontext * ctx)
 
 	// Draw node outline
 	nvgBeginPath(ctx);
-	nvgRect(ctx, static_cast<float>(mPos.x()), static_cast<float>(mPos.y()), static_cast<float>(mSize.x()), static_cast<float>(mSize.y()));
-	nvgStrokeWidth(ctx, 4.0f);
-	nvgStrokeColor(ctx, m_strokeColor);
+	nvgRect(ctx, 
+	        static_cast<float>(mPos.x()), 
+	        static_cast<float>(mPos.y()), 
+	        static_cast<float>(mSize.x()), 
+	        static_cast<float>(mSize.y()));
+	nvgStrokeWidth(ctx, s_kBorderWidth);
+	nvgStrokeColor(ctx, nvgRGBA(255, 0, 0, 255));
 	nvgStroke(ctx);
 
 	// Draw node connections
 	for (ref<Node> node : m_connections) {
-		nvgStrokeWidth(ctx, 3.0f);
-		nvgStrokeColor(ctx, nvgRGBA(0, 255, 0, 160));
+		nvgStrokeWidth(ctx, 2.0f);
+		nvgStrokeColor(ctx, nvgRGBA(0, 255, 0, 100));
 		nvgBeginPath(ctx);
 		// Move to center of node
 		float startX = mPos.x() + mSize.x() / 2.0f;
@@ -44,11 +48,15 @@ void Node::draw(NVGcontext * ctx)
 		nvgStroke(ctx);
 	}
 
-	// Fill node
-	nvgBeginPath(ctx);
-	nvgRect(ctx, static_cast<float>(mPos.x() + 2), static_cast<float>(mPos.y() + 2), static_cast<float>(mSize.x() - 4), static_cast<float>(mSize.y() - 4));
-	if (m_fillColor.a != 0) {
-		nvgFillColor(ctx, m_fillColor);
+	// Draw obstructions
+	if (m_obstructed) {
+		nvgBeginPath(ctx);
+		nvgRect(ctx, 
+		        static_cast<float>(mPos.x() + s_kBorderWidth / 2),
+		        static_cast<float>(mPos.y() + s_kBorderWidth / 2),
+		        static_cast<float>(mSize.x() - s_kBorderWidth),
+		        static_cast<float>(mSize.y() - s_kBorderWidth));
+		nvgFillColor(ctx, nvgRGBA(255, 0, 0, 255));
 		nvgFill(ctx);
 	}
 
@@ -93,6 +101,16 @@ size_t Node::getCol() const
 	return m_col;
 }
 
+nanogui::Vector2i Node::getPos() const
+{
+	return absolutePosition();
+}
+
+nanogui::Vector2i Node::getSize() const
+{
+	return mSize;
+}
+
 void Node::setObstructed(bool isObstructed)
 {
 	m_obstructed = isObstructed;
@@ -101,16 +119,6 @@ void Node::setObstructed(bool isObstructed)
 bool Node::isObstructed() const
 {
 	return m_obstructed;
-}
-
-void Node::setFillColor(const NVGcolor& fillColor)
-{
-	m_fillColor = fillColor;
-}
-
-void Node::setStrokeColor(const NVGcolor& strokeColor)
-{
-	m_strokeColor = strokeColor;
 }
 
 bool Node::connect(nanogui::ref<Node> node1, nanogui::ref<Node> node2)

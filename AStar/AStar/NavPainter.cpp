@@ -59,8 +59,8 @@ void NavPainter::setCurrentBrush(BrushType brush)
 
 void NavPainter::paintObstacle(Node& node)
 {
+	m_pathFinder.clear();
 	node.setObstructed(true);
-	node.setFillColor(nvgRGBA(255, 0, 0, 255));
 
 	// Remove cardinal nodes' diagonal connections around this node
 	size_t row = node.getRow();
@@ -79,8 +79,8 @@ void NavPainter::paintObstacle(Node& node)
 
 void NavPainter::clearObstacle(Node& node)
 {
+	m_pathFinder.clear();
 	node.setObstructed(false);
-	node.setFillColor(nvgRGBA(0, 0, 0, 0));
 
 	// Reconnect the now unobstructed node
 	for (int relR = -1; relR <= 1; ++relR) {
