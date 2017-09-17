@@ -1,13 +1,10 @@
 #pragma once
 
+#include <nanogui\object.h>
+
 class Node;
 class Grid;
 class PathFinder;
-
-namespace nanogui {
-	template<class T>
-	class ref;
-}
 
 class NavPainter {
 public:
@@ -17,7 +14,7 @@ public:
 		Obstacle
 	};
 
-	NavPainter(Grid& grid, PathFinder& pathFinder);
+	NavPainter(Grid& grid, nanogui::ref<PathFinder> pathFinder);
 	~NavPainter();
 
 	bool paintEvent(int button, nanogui::ref<Node> node);
@@ -29,6 +26,6 @@ private:
 
 	BrushType m_currentBrush;
 	Grid& m_grid;
-	PathFinder& m_pathFinder;
+	nanogui::ref<PathFinder> m_pathFinder;
 };
 

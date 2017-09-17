@@ -7,7 +7,9 @@
 #include "Node.h"
 
 
-PathFinder::PathFinder()
+PathFinder::PathFinder(nanogui::Widget* parent, nanogui::ref<nanogui::Window> parentWindow)
+	: Window(parent, "")
+	, m_parentWindow{ std::move(parentWindow) }
 {
 }
 
@@ -147,6 +149,8 @@ void PathFinder::drawGraphSegment(NVGcontext* ctx, const Node& nodeFrom, const N
 
 void PathFinder::draw(NVGcontext* ctx)
 {
+	refreshRelativePlacement();
+
 	// Outline current node
 	if (m_curNode)
 		strokeNode(ctx, *m_curNode, nvgRGBA(255, 255, 0, 255));
@@ -190,6 +194,22 @@ void PathFinder::draw(NVGcontext* ctx)
 				cameFrom = m_cameFrom.at(cameFrom);
 		}
 	}
+}
+
+void PathFinder::refreshRelativePlacement()
+{
+	mPos = m_parentWindow->position();
+	mSize = m_parentWindow->size();
+}
+
+bool PathFinder::mouseButtonEvent(const nanogui::Vector2i & p, int button, bool down, int modifiers)
+{
+	return false;
+}
+
+bool PathFinder::mouseEnterEvent(const nanogui::Vector2i & p, bool enter)
+{
+	return false;
 }
 
 //void PathFinder::displayResults()

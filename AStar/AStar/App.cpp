@@ -10,8 +10,6 @@ AStarApp::AStarApp()
 	: Screen(Vector2i(1500, 850), "AStar")
 	, m_modulation{ 5 }
 	, m_grid{}
-	, m_pathFinder{}
-	, m_navPainter{ m_grid, m_pathFinder }
 {
 	/**
 	* Add a window.
@@ -31,6 +29,10 @@ AStarApp::AStarApp()
 	Window* window2 = new Window(this, "");
 	window2->setPosition({ 100, 15 });
 	window2->setLayout(new GridLayout(Orientation::Horizontal, Node::s_kGridSize));
+
+	// Instantiate path finder and its visual display
+	m_pathFinder = new PathFinder(this, window2);
+	m_navPainter = std::make_shared<NavPainter>(m_grid, m_pathFinder);
 
 	// Create pathing nodes
 	for (size_t i = 0; i < Node::s_kGridSize; ++i) {
@@ -66,7 +68,14 @@ AStarApp::AStarApp()
 	button->setBackgroundColor(Color(255, 0, 0, 1));
 	button->setFixedSize({ 500, 100 });
 	button->setCallback([this]() {
-		m_pathingFuture = std::async(std::bind(&PathFinder::calculatePath, &m_pathFinder));
+		//if (m_pathingFuture.valid()) {
+		//	std::future_status status = m_pathingFuture.wait_for(std::chrono::seconds(0));
+		//	if (status != std::future_status::ready) {
+		//		m_pathFinder.stop();
+		//	}
+		//}
+
+		m_pathingFuture = std::async(std::bind(&PathFinder::calculatePath, m_pathFinder));
 	});
 
 	// Setup brush pallet
@@ -77,17 +86,17 @@ AStarApp::AStarApp()
 	placeStartTool->setPushed(true);
 	placeStartTool->setFlags(Button::RadioButton);
 	placeStartTool->setCallback([this]() {
-		m_navPainter.setCurrentBrush(NavPainter::BrushType::Start);
+		m_navPainter->setCurrentBrush(NavPainter::BrushType::Start);
 	});
 	auto placeEndTool = new CustomButton(toolsWindow, "End");
 	placeEndTool->setFlags(Button::RadioButton);
 	placeEndTool->setCallback([this]() {
-		m_navPainter.setCurrentBrush(NavPainter::BrushType::End);
+		m_navPainter->setCurrentBrush(NavPainter::BrushType::End);
 	});
 	auto placeObstruction = new CustomButton(toolsWindow, "Obstacle");
 	placeObstruction->setFlags(Button::RadioButton);
 	placeObstruction->setCallback([this]() {
-		m_navPainter.setCurrentBrush(NavPainter::BrushType::Obstacle);
+		m_navPainter->setCurrentBrush(NavPainter::BrushType::Obstacle);
 	});
 
 	// Do the layout calculations based on what was added to the GUI
@@ -144,5 +153,4 @@ void AStarApp::draw(NVGcontext * ctx)
 	//nvgFill(ctx);
 
 	Screen::draw(ctx);
-	m_pathFinder.draw(ctx);
 }

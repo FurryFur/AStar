@@ -4,13 +4,13 @@
 #include <queue>
 #include <unordered_map>
 
-#include <nanogui\object.h>
+#include <nanogui\nanogui.h>
 
 class Node;
 
-class PathFinder {
+class PathFinder : public nanogui::Window {
 public:
-	PathFinder();
+	PathFinder(nanogui::Widget* parent, nanogui::ref<nanogui::Window> parentWindow);
 	~PathFinder();
 
 	void setStartNode(nanogui::ref<Node> node);
@@ -18,8 +18,12 @@ public:
 	bool isStart(const Node* node) const;
 	bool isEnd(const Node* node) const;
 	void calculatePath();
-	void draw(NVGcontext* ctx);
 	void clear();
+
+	virtual void draw(NVGcontext* ctx) override;
+	virtual void refreshRelativePlacement() override;
+	virtual bool mouseButtonEvent(const nanogui::Vector2i& p, int button, bool down, int modifiers) override;
+	virtual bool mouseEnterEvent(const nanogui::Vector2i& p, bool enter) override;
 	
 private:
 	using NodePriorityPair = std::pair<Node*, float>;
@@ -42,6 +46,7 @@ private:
 	void strokeNode(NVGcontext* ctx, const Node& node, const NVGcolor& color);
 	void drawGraphSegment(NVGcontext* ctx, const Node& nodeFrom, const Node& nodeTo, const NVGcolor& color);
 
+	nanogui::ref<nanogui::Window> m_parentWindow;
 	nanogui::ref<Node> m_startNode;
 	nanogui::ref<Node> m_endNode;
 	Node* m_curNode;

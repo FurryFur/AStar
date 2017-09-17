@@ -5,9 +5,10 @@
 #include "Grid.h"
 #include "PathFinder.h"
 
-NavPainter::NavPainter(Grid& grid, PathFinder& pathfinder)
+NavPainter::NavPainter(Grid& grid, nanogui::ref<PathFinder> pathfinder)
 	: m_grid{ grid }
-	, m_pathFinder{ pathfinder }
+	, m_pathFinder{ std::move(pathfinder) }
+	, m_currentBrush{ BrushType::Start }
 {
 }
 
@@ -21,18 +22,18 @@ bool NavPainter::paintEvent(int button, nanogui::ref<Node> node)
 	if (!node)
 		return false;
 
-	bool startOrEnd = m_pathFinder.isStart(node) || m_pathFinder.isEnd(node);
+	bool startOrEnd = m_pathFinder->isStart(node) || m_pathFinder->isEnd(node);
 
 	switch (m_currentBrush) {
 	case NavPainter::Start:
 		if (!startOrEnd && !node->isObstructed()) {
-			m_pathFinder.setStartNode(std::move(node));
+			m_pathFinder->setStartNode(std::move(node));
 			return true; // Handled / state change occured
 		}
 		break;
 	case NavPainter::End:
 		if (!startOrEnd && !node->isObstructed()) {
-			m_pathFinder.setEndNode(std::move(node));
+			m_pathFinder->setEndNode(std::move(node));
 			return true; // Handled / state change occured
 		}
 		break;
@@ -59,7 +60,7 @@ void NavPainter::setCurrentBrush(BrushType brush)
 
 void NavPainter::paintObstacle(Node& node)
 {
-	m_pathFinder.clear();
+	m_pathFinder->clear();
 	node.setObstructed(true);
 
 	// Remove cardinal nodes' diagonal connections around this node
@@ -79,7 +80,7 @@ void NavPainter::paintObstacle(Node& node)
 
 void NavPainter::clearObstacle(Node& node)
 {
-	m_pathFinder.clear();
+	m_pathFinder->clear();
 	node.setObstructed(false);
 
 	// Reconnect the now unobstructed node

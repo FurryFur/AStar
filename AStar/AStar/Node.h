@@ -10,7 +10,7 @@ class NavPainter;
 
 class Node : public nanogui::Widget {
 public:
-	Node(nanogui::Window* window, NavPainter& navPaint, size_t row, size_t col);
+	Node(nanogui::Window* window, std::shared_ptr<NavPainter> navPainter, size_t row, size_t col);
 
 	// Draws the cell.
 	virtual void draw(NVGcontext* ctx) override;
@@ -60,7 +60,7 @@ public:
 	static const float s_kBorderWidth;
 private:
 	bool m_obstructed;
-	NavPainter& m_navPainter;
+	std::shared_ptr<NavPainter> m_navPainter;
 	std::list<nanogui::ref<Node>> m_connections;
 	size_t m_row;
 	size_t m_col;

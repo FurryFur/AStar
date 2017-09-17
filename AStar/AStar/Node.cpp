@@ -8,9 +8,9 @@ using namespace nanogui;
 
 const float Node::s_kBorderWidth = 4;
 
-Node::Node(Window * window, NavPainter& navPainter, size_t row, size_t col)
+Node::Node(Window * window, std::shared_ptr<NavPainter> navPainter, size_t row, size_t col)
 	: Widget(window)
-	, m_navPainter{ navPainter }
+	, m_navPainter{ std::move(navPainter) }
 	, m_row{ row }
 	, m_col{ col }
 	, m_obstructed{ false }
@@ -68,7 +68,7 @@ void Node::draw(NVGcontext * ctx)
 bool Node::mouseButtonEvent(const Vector2i & p, int button, bool down, int modifiers)
 {
 	if ((button == GLFW_MOUSE_BUTTON_1 || button == GLFW_MOUSE_BUTTON_2) && down) {
-		m_navPainter.paintEvent(button, this);
+		m_navPainter->paintEvent(button, this);
 
 		return true;
 	}
@@ -83,9 +83,9 @@ bool Node::mouseEnterEvent(const Vector2i & p, bool enter)
 		int button2State = glfwGetMouseButton(this->screen()->glfwWindow(), GLFW_MOUSE_BUTTON_2);
 
 		if (button1State == GLFW_PRESS)
-			return m_navPainter.paintEvent(GLFW_MOUSE_BUTTON_1, this);
+			return m_navPainter->paintEvent(GLFW_MOUSE_BUTTON_1, this);
 		if (button2State == GLFW_PRESS)
-			return m_navPainter.paintEvent(GLFW_MOUSE_BUTTON_2, this);
+			return m_navPainter->paintEvent(GLFW_MOUSE_BUTTON_2, this);
 	}
 
 	return Widget::mouseEnterEvent(p, enter);

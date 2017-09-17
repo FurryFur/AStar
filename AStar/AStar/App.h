@@ -1,6 +1,7 @@
 #pragma once
 
 #include <future>
+#include <memory>
 
 #include <nanogui\nanogui.h>
 
@@ -23,7 +24,7 @@ private:
 	nanogui:: GLShader m_shader;
 	float m_modulation;
 	Grid m_grid;
-	NavPainter m_navPainter;
-	PathFinder m_pathFinder;
+	nanogui::ref<PathFinder> m_pathFinder;
+	std::shared_ptr<NavPainter> m_navPainter;
 	std::future<void> m_pathingFuture;
 };
