@@ -68,14 +68,7 @@ AStarApp::AStarApp()
 	button->setBackgroundColor(Color(255, 0, 0, 1));
 	button->setFixedSize({ 500, 100 });
 	button->setCallback([this]() {
-		//if (m_pathingFuture.valid()) {
-		//	std::future_status status = m_pathingFuture.wait_for(std::chrono::seconds(0));
-		//	if (status != std::future_status::ready) {
-		//		m_pathFinder.stop();
-		//	}
-		//}
-
-		m_pathingFuture = std::async(std::bind(&PathFinder::calculatePath, m_pathFinder));
+		m_pathFinder->calculatePathAsync();
 	});
 
 	// Setup brush pallet
