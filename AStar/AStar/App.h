@@ -13,9 +13,14 @@
 
 #pragma once
 
+#include <future>
+#include <memory>
+
 #include <nanogui\nanogui.h>
 
 #include "Grid.h"
+#include "NavPainter.h"
+#include "PathFinder.h"
 
 class AStarApp : public nanogui::Screen {
 public:
@@ -29,15 +34,8 @@ public:
 	virtual void draw(NVGcontext* ctx) override;
 
 private:
-
-	enum BrushType {
-		Start,
-		End,
-		Obstacle
-	};
-
-	BrushType m_currentBrush;
-	nanogui:: GLShader m_shader;
+	nanogui::GLShader m_shader;
 	float m_modulation;
 	Grid m_grid;
+	std::unique_ptr<NavPainter> m_navPainter;
 };

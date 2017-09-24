@@ -20,8 +20,6 @@
 
 Grid::Grid()
 	: m_internalGrid{}
-	, m_startNode{}
-	, m_endNode{}
 {
 }
 
@@ -30,20 +28,20 @@ Grid::~Grid()
 {
 }
 
-void Grid::setGridNode(size_t row, size_t col, nanogui::ref<Node> node)
+void Grid::setGridNode(size_t row, size_t col, Node* node)
 {
-	m_internalGrid[row][col] = std::move(node);
+	m_internalGrid[row][col] = node;
 }
 
-nanogui::ref<Node> Grid::getGridNode(size_t row, size_t col) const
+Node* Grid::getGridNode(size_t row, size_t col) const
 {
 	if (row < s_kGridSize && col < s_kGridSize)
 		return m_internalGrid[row][col];
 
-	return nanogui::ref<Node>{};
+	return nullptr;
 }
 
-const Grid::IndexProxy Grid::operator[](size_t row) const
+Grid::IndexProxy Grid::operator[](size_t row) const
 {
 	if (row < m_internalGrid.size())
 		return Grid::IndexProxy(&m_internalGrid[row]);
@@ -51,7 +49,7 @@ const Grid::IndexProxy Grid::operator[](size_t row) const
 	return Grid::IndexProxy(nullptr);
 }
 
-bool Grid::areConnectable(nanogui::ref<Node> from, nanogui::ref<Node> to) const
+bool Grid::areConnectable(Node* from, Node* to) const
 {
 	// Null and direct obstruction check
 	if (!from || !to || from->isObstructed() || to->isObstructed())
@@ -78,8 +76,8 @@ bool Grid::areConnectable(nanogui::ref<Node> from, nanogui::ref<Node> to) const
 	// Check cross diagonal
 	size_t crossDiagR = fromR + relR;
 	size_t crossDiagC = fromC + relC;
-	const nanogui::ref<Node>& crossDiag1 = m_internalGrid[crossDiagR][fromC];
-	const nanogui::ref<Node>& crossDiag2 = m_internalGrid[fromR][crossDiagC];
+	const Node* const & crossDiag1 = m_internalGrid[crossDiagR][fromC];
+	const Node* const & crossDiag2 = m_internalGrid[fromR][crossDiagC];
 	if (crossDiag1->isObstructed() || crossDiag2->isObstructed())
 		return false;
 
@@ -87,36 +85,16 @@ bool Grid::areConnectable(nanogui::ref<Node> from, nanogui::ref<Node> to) const
 	return true;
 }
 
-nanogui::ref<Node> Grid::getStartNode()
-{
-	return m_startNode;
-}
-
-nanogui::ref<Node> Grid::getEndNode()
-{
-	return m_endNode;
-}
-
-void Grid::setStartNode(nanogui::ref<Node> startNode)
-{
-	m_startNode = std::move(startNode);
-}
-
-void Grid::setEndNode(nanogui::ref<Node> endNode)
-{
-	m_endNode = std::move(endNode);
-}
-
-Grid::IndexProxy::IndexProxy(const std::array<nanogui::ref<Node>, s_kGridSize>* _array) : 
-	m_array(_array) 
+Grid::IndexProxy::IndexProxy(const std::array<Node*, s_kGridSize>* _array) 
+	: m_array(_array) 
 { 
 
 }
 
-nanogui::ref<Node> Grid::IndexProxy::operator[](size_t col) const
+Node* Grid::IndexProxy::operator[](size_t col) const
 {
 	if (m_array && col < m_array->size())
 		return (*m_array)[col];
 
-	return nanogui::ref<Node>{};
+	return nullptr;
 }

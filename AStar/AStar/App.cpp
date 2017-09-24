@@ -13,13 +13,14 @@
 
 #include "App.h"
 #include "Node.h"
+#include "CustomButton.h"
 
 using namespace nanogui;
 
 AStarApp::AStarApp()
-	: Screen(Vector2i(1024, 850), "AStar")
+	: Screen(Vector2i(1500, 850), "AStar")
 	, m_modulation{ 5 }
-	, m_currentBrush{ BrushType::Start }
+	, m_grid{}
 {
 	/**
 	* Add a window.
@@ -40,11 +41,16 @@ AStarApp::AStarApp()
 	window2->setPosition({ 100, 15 });
 	window2->setLayout(new GridLayout(Orientation::Horizontal, Node::s_kGridSize));
 
+	// Instantiate path finder and its UI components
+	auto pathFinder = new PathFinder(this, window2);
+	m_navPainter = std::make_unique<NavPainter>(m_grid, *pathFinder);
+
 	// Create pathing nodes
 	for (size_t i = 0; i < Node::s_kGridSize; ++i) {
 		for (size_t j = 0; j < Node::s_kGridSize; ++j) {
-			auto node = new Node(window2, m_grid, i, j);
+			auto node = new Node(window2, *m_navPainter, i, j);
 			node->setFixedSize({ 50, 50 });
+			m_grid.setGridNode(i, j, node);
 		}
 	}
 	
@@ -65,33 +71,36 @@ AStarApp::AStarApp()
 		}
 	}
 
+	// Setup the simulate button
 	Window* window3 = new Window(this, "");
-	window3->setPosition({ 450, 700 });
+	window3->setPosition({ 920, 685 });
 	window3->setLayout(new GroupLayout());
 	auto button = new Button(window3, "SIMULATE");
 	button->setBackgroundColor(Color(255, 0, 0, 1));
 	button->setFixedSize({ 500, 100 });
+	button->setCallback([pathFinder]() {
+		pathFinder->calculatePathAsync();
+	});
 
+	// Setup brush pallet
 	Window* toolsWindow = new Window(this, "Brush");
 	toolsWindow->setPosition({ 907, 15 });
 	toolsWindow->setLayout(new GroupLayout());
-
-	// Setup brush pallet
-	auto placeStartTool = new Button(toolsWindow, "Start");
+	auto placeStartTool = new CustomButton(toolsWindow, "Start");
 	placeStartTool->setPushed(true);
 	placeStartTool->setFlags(Button::RadioButton);
 	placeStartTool->setCallback([this]() {
-		m_currentBrush = BrushType::Start;
+		m_navPainter->setCurrentBrush(NavPainter::BrushType::Start);
 	});
-	auto placeEndTool = new Button(toolsWindow, "End");
+	auto placeEndTool = new CustomButton(toolsWindow, "End");
 	placeEndTool->setFlags(Button::RadioButton);
 	placeEndTool->setCallback([this]() {
-		m_currentBrush = BrushType::End;
+		m_navPainter->setCurrentBrush(NavPainter::BrushType::End);
 	});
-	auto placeObstruction = new Button(toolsWindow, "Obstacle");
+	auto placeObstruction = new CustomButton(toolsWindow, "Obstacle");
 	placeObstruction->setFlags(Button::RadioButton);
 	placeObstruction->setCallback([this]() {
-		m_currentBrush = BrushType::Obstacle;
+		m_navPainter->setCurrentBrush(NavPainter::BrushType::Obstacle);
 	});
 
 	// Do the layout calculations based on what was added to the GUI

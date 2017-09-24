@@ -60,7 +60,8 @@
       <AdditionalDependencies>opengl32.lib;nanogui_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /y "$(ProjectDir)Dependencies\lib\nanogui_d.dll" "$(OutDir)nanogui.dll"</Command>
+      <Command>copy /y "$(ProjectDir)Dependencies\lib\nanogui_d.dll" "$(OutDir)nanogui.dll"
+xcopy /y "$(ProjectDir)Shaders\*.glsl" "$(OutDir)Shaders\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -78,19 +79,26 @@
       <AdditionalDependencies>opengl32.lib;nanogui.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y "$(ProjectDir)Dependencies\lib\nanogui.dll" "$(OutDir)"</Command>
+      <Command>xcopy /y "$(ProjectDir)Dependencies\lib\nanogui.dll" "$(OutDir)"
+xcopy /y "$(ProjectDir)Shaders\*.glsl" "$(OutDir)Shaders\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
+    <ClCompile Include="CustomButton.cpp" />
     <ClCompile Include="Grid.cpp" />
+    <ClCompile Include="NavPainter.cpp" />
     <ClCompile Include="Node.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PathFinder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
+    <ClInclude Include="CustomButton.h" />
     <ClInclude Include="Grid.h" />
+    <ClInclude Include="NavPainter.h" />
     <ClInclude Include="Node.h" />
+    <ClInclude Include="PathFinder.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
